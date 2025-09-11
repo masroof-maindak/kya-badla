@@ -1,6 +1,8 @@
 #ifndef ARGS_H
 #define ARGS_H
 
+#include <argparse/argparse.hpp>
+
 #include <string>
 
 struct ArgConfig {

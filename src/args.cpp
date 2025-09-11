@@ -1,7 +1,5 @@
 #include <chng/args.h>
 
-#include <argparse/argparse.hpp>
-
 ArgConfig parse_args(int argc, char *argv[]) {
 	argparse::ArgumentParser prog("chng");
 
@@ -14,16 +12,16 @@ ArgConfig parse_args(int argc, char *argv[]) {
 		.help("specify the input dir.");
 
 	prog.add_argument("-ie", "--input-ext")
-		.help("specify the input frames' extension (png, jpg, jpeg).")
-		.default_value("png");
+		.help("specify the input frames' extension (.png/.jpg/.jpeg).")
+		.default_value(".png");
 
 	prog.add_argument("-oe", "--output-ext")
-		.help("specify the output frames' extension (png, jpg).")
-		.default_value("png");
+		.help("specify the output frames' extension (.png/.jpg).")
+		.default_value(".png");
 
 	prog.add_argument("-vf", "--video-format")
-		.help("specify the output video's extension (mp4, avi).")
-		.default_value("mp4");
+		.help("specify the output video's extension (.mp4/.avi).")
+		.default_value(".mp4");
 
 	try {
 		prog.parse_args(argc, argv);
@@ -34,10 +32,10 @@ ArgConfig parse_args(int argc, char *argv[]) {
 	}
 
 	ArgConfig params{
-		.input_dir	  = prog.get<std::string>("--output-dir"),
-		.output_dir	  = prog.get<std::string>("--input-dir"),
+		.input_dir	  = prog.get<std::string>("--input-dir"),
+		.output_dir	  = prog.get<std::string>("--output-dir"),
 		.input_ext	  = prog.get<std::string>("--input-ext"),
-		.output_ext	  = prog.get<std::string>("--input-ext"),
+		.output_ext	  = prog.get<std::string>("--output-ext"),
 		.video_format = prog.get<std::string>("--video-format"),
 	};
 
