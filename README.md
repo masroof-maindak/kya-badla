@@ -1,16 +1,14 @@
-# OpenCV CMake Template
-
-Shrimple CMake config to compile C++ OpenCV projects. Currently only has support for single-file projects. I don't know if I'll add more in the future
+# Change Detector
 
 ## Usage
 
 ```bash
-git clone https://github.com/<username>/<project-name>.git
-cd <project-name>
+git clone https://github.com/masroof-maindak/change-detector.git
+cd change-detector
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release .. # Or 'Debug' if you want to hack away.
 cmake --build .
-./demo # args, if relevant
+./demo -i <input-dir> -o <output-dir>
 ```
 
 ## Dependencies
