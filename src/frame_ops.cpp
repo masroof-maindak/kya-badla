@@ -9,6 +9,7 @@
 
 std::vector<cv::Mat> bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
 	std::vector<cv::Mat> ret{};
+	ret.reserve(video.size());
 
 	for (const cv::Mat &frame : video) {
 

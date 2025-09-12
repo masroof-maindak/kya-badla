@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	auto video_colour = read_frames(params.input_dir, params.input_ext);
+	auto video_colour = read_frames(params.input_dir, params.input_ext, 0.5);
 	std::println("Loaded original video.");
 
 	auto video_gray = bgr_video_to_grayscale(video_colour);
@@ -23,8 +23,6 @@ int main(int argc, char *argv[]) {
 
 	video_colour.clear();
 	std::println("Freed colour video.");
-
-	cv::imwrite("aa.jpg", video_gray[0]);
 
 	return 0;
 }

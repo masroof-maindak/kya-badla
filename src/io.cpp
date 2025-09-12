@@ -8,7 +8,8 @@
 using namespace cv;
 
 std::vector<cv::Mat> read_frames(std::string_view input_dir,
-								 std::string_view input_ext) {
+								 std::string_view input_ext,
+								 std::optional<float> resize_perc) {
 	std::vector<cv::Mat> video{};
 
 	const std::filesystem::path dir_path{input_dir};
@@ -28,6 +29,13 @@ std::vector<cv::Mat> read_frames(std::string_view input_dir,
 			if (img.data == nullptr) {
 				std::println(stderr, "[LOADER] Failed to read/parse img: `{}`.",
 							 entry.path().string());
+			}
+
+			if (resize_perc.has_value()) {
+				cv::Mat resized{};
+				float f = resize_perc.value();
+				cv::resize(img, resized, cv::Size(), f, f, cv::INTER_LINEAR);
+				img = resized;
 			}
 
 			video.emplace_back(img);
