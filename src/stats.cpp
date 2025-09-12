@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-std::expected<cv::Mat, std::string> compute_mean(const std::vector<cv::Mat> &video, std::optional<uint> frame_count) {
+std::expected<cv::Mat, std::string> compute_mean(const std::vector<cv::Mat> &video, std::optional<int> frame_count) {
     if (video.empty())
         return std::unexpected("Empty video provided.");
 
@@ -37,7 +37,7 @@ std::expected<cv::Mat, std::string> compute_mean(const std::vector<cv::Mat> &vid
 }
 
 std::expected<cv::Mat, std::string> compute_variance(const std::vector<cv::Mat> &video, const cv::Mat &mean_frame,
-                                                     std::optional<uint> frame_count) {
+                                                     std::optional<int> frame_count) {
     if (video.empty())
         return std::unexpected("Empty video provided.");
 

@@ -4,10 +4,9 @@
 #include <opencv2/opencv.hpp>
 
 #include <print>
-#include <stdexcept>
 
 std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view input_dir, std::string_view input_ext,
-                                                             std::optional<float> resize_scale) {
+                                                             float resize_scale) {
     std::vector<cv::Mat> video{};
 
     const std::filesystem::path dir_path{input_dir};
@@ -28,9 +27,9 @@ std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view in
                 return std::unexpected("Failed to read/parse image: " + entry.path().string());
             }
 
-            if (resize_scale.has_value()) {
+            if (resize_scale != 1.0) {
                 cv::Mat resized{};
-                float f = resize_scale.value();
+                float f{resize_scale};
                 cv::resize(img, resized, cv::Size(), f, f, cv::INTER_LINEAR);
                 img = resized;
             }
@@ -49,7 +48,7 @@ std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view in
 
 std::expected<std::filesystem::path, std::string> save_frames(const std::vector<cv::Mat> &video,
                                                               const std::string &out_dir, const std::string &phase,
-                                                              std::string_view out_ext, size_t mod_step) {
+                                                              std::string_view out_ext, int frame_save_step) {
 
     std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
 
@@ -60,7 +59,7 @@ std::expected<std::filesystem::path, std::string> save_frames(const std::vector<
     }
 
     for (size_t i = 0; const cv::Mat &frame : video) {
-        if (i % mod_step == 0) {
+        if (i % frame_save_step == 0) {
             auto fname = std::format("{}shot{}{}", dir.string(), i, out_ext);
             // TODO: handle imwrite errors
             cv::imwrite(fname, frame);

@@ -9,8 +9,9 @@
 
 struct ArgConfig {
     int mn_threshold;
-    std::optional<float> scale;
-    std::optional<uint> frame_count;
+    int frame_save_step;
+    float scale;
+    std::optional<int> frame_count;
     std::string input_dir;
     std::string output_dir;
     std::string input_ext;
