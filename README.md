@@ -1,7 +1,8 @@
 # Change Detector
 
-\*0.5 dependency (OpenCV is only used for container classes and to load frames) computer-vision that takes a video as output and outputs a video highlighting change in the original video.
+Zero-point-five dependency (OpenCV is only used for container classes and to load frames) computer vision project that takes a 'video' as output and outputs a video highlighting 'change' in the original video.
 
+Just about everything in terms of actual classical CV algorithms has been done from scratch, with (to the best of my ability) best modern C++ practices.
 
 ## Usage
 
@@ -16,7 +17,7 @@ cmake --build .
 
 ## Assumptions
 
-- \[\*\*\] The 'video' lies as image frames inside the input directory.
+- \[\*\] The 'video' lies as image frames inside the input directory.
 - Each image has 3 8-bit channels
 
 ## Dependencies
@@ -32,6 +33,6 @@ cmake --build .
 sudo pacman -S opencv qt6-base vtk hdf5
 ```
 
-## Acknowledgements -->
+## Acknowledgements
 
 - [Convert RGB to Grayscale Algorithms](https://fiveko.com/blog/convert-rgb-to-grayscale-algorithms/)
