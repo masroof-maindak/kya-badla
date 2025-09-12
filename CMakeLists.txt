@@ -26,7 +26,8 @@ add_executable(
     "src/main.cpp"
     "src/args.cpp"
     "src/io.cpp"
-    "src/frame_ops.cpp"
+    "src/img_process.cpp"
+    "src/stats.cpp"
 )
 target_include_directories(kybdl PRIVATE "include/" ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(kybdl PRIVATE argparse ${OpenCV_LIBS})

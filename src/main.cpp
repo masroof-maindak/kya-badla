@@ -1,6 +1,7 @@
 #include <kybdl/args.h>
-#include <kybdl/frame_ops.h>
+#include <kybdl/img_process.h>
 #include <kybdl/io.h>
+#include <kybdl/stats.h>
 
 #include <opencv2/opencv.hpp>
 
