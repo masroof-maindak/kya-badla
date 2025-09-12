@@ -57,7 +57,7 @@ std::filesystem::path save_frames(const std::vector<cv::Mat> &video,
 	// TODO: handle error code variable in erroneous case
 	std::filesystem::create_directories(dir, e);
 
-	for (size_t i = 0; const auto &frame : video) {
+	for (size_t i = 0; const cv::Mat &frame : video) {
 		if (i % mod_step == 0) {
 			auto fname = std::format("{}shot{}{}", dir.string(), i, out_ext);
 
@@ -67,6 +67,25 @@ std::filesystem::path save_frames(const std::vector<cv::Mat> &video,
 
 		i++;
 	}
+
+	return dir;
+}
+
+std::filesystem::path save_image(const cv::Mat &img, const std::string &out_dir,
+								 const std::string &phase,
+								 std::string_view out_ext) {
+
+	std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
+
+	std::error_code e;
+
+	// TODO: handle error code variable in erroneous case
+	std::filesystem::create_directories(dir, e);
+
+	auto fname = std::format("{}img{}", dir.string(), out_ext);
+
+	// TODO: handle imwrite errors -- manually imdecode + write bin
+	cv::imwrite(fname, img);
 
 	return dir;
 }

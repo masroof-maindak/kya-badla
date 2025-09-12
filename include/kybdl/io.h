@@ -17,4 +17,8 @@ std::filesystem::path save_frames(const std::vector<cv::Mat> &video,
 								  const std::string &phase,
 								  std::string_view out_ext, size_t mod_step);
 
+std::filesystem::path save_image(const cv::Mat &img, const std::string &out_dir,
+								 const std::string &phase,
+								 std::string_view out_ext);
+
 #endif // IO_H

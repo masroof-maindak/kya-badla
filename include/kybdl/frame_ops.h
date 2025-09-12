@@ -6,5 +6,8 @@
 #include <vector>
 
 std::vector<cv::Mat> bgr_video_to_grayscale(const std::vector<cv::Mat> &video);
+cv::Mat compute_mean(const std::vector<cv::Mat> &video);
+cv::Mat compute_variance(const std::vector<cv::Mat> &video,
+						 const cv::Mat &mean_frame);
 
 #endif // FRAME_OPS_H
