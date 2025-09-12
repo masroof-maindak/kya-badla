@@ -1,4 +1,4 @@
-# Change Detector
+# Kya Badla?
 
 Zero-point-five dependency (OpenCV is only used for container classes and to load frames) computer vision project that takes a 'video' as output and outputs a video highlighting 'change' in the original video.
 
@@ -7,12 +7,12 @@ Just about everything in terms of actual classical CV algorithms has been done f
 ## Usage
 
 ```bash
-git clone https://github.com/masroof-maindak/change-detector.git
-cd change-detector
+git clone https://github.com/masroof-maindak/kya-badla.git
+cd kya-badla
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release .. # Or 'Debug' if you want to hack away.
 cmake --build .
-./demo -i <input-dir> -o <output-dir>
+./kybdl -i <input-dir> -o <output-dir>
 ```
 
 ## Assumptions

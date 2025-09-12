@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(ChangeDetector LANGUAGES CXX)
+project(KyaBadla LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,11 +22,11 @@ FetchContent_MakeAvailable(argparse)
 
 find_package(OpenCV REQUIRED)
 add_executable(
-    chng
+    kybdl
     "src/main.cpp"
     "src/args.cpp"
     "src/io.cpp"
     "src/frame_ops.cpp"
 )
-target_include_directories(chng PRIVATE "include/" ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(chng PRIVATE argparse ${OpenCV_LIBS})
+target_include_directories(kybdl PRIVATE "include/" ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(kybdl PRIVATE argparse ${OpenCV_LIBS})
