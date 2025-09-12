@@ -52,6 +52,12 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         .scan<'i', int>()
         .store_into(params.mn_threshold);
 
+    prog.add_argument("-ks", "--kernel-size")
+        .help("specify the size of the kernel to be used for dilation/erosion")
+        .default_value(3)
+        .scan<'i', int>()
+        .store_into(params.kernel_size);
+
     try {
         prog.parse_args(argc, argv);
 
@@ -63,6 +69,12 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
 
             // Can't directly `.store_into()` std::optional<float>
             params.frame_count = prog.get<uint>("-fc");
+        }
+
+        if (prog.is_used("-ks")) {
+            int i{prog.get<int>("-ks")};
+            if (i < 3 || i > 255)
+                return std::unexpected(std::format("Erroneous arg {}. Kernel size can range from 3 to 255", i));
         }
 
         if (prog.is_used("-fss")) {
