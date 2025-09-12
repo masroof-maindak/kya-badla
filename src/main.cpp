@@ -24,7 +24,8 @@ int main(int argc, char *argv[]) {
 	video_colour.clear();
 	std::println("Freed colour video.");
 
-	cv::imwrite("aa.jpg", video_gray[0]);
+	save_frames(video_gray, args.output_dir, "gray", args.output_ext, 10);
+	std::println("Saved gray frames.");
 
 	return 0;
 }

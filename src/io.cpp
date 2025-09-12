@@ -2,7 +2,6 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <filesystem>
 #include <print>
 
 std::vector<cv::Mat> read_frames(std::string_view input_dir,
@@ -44,4 +43,30 @@ std::vector<cv::Mat> read_frames(std::string_view input_dir,
 	}
 
 	return video;
+}
+
+std::filesystem::path save_frames(const std::vector<cv::Mat> &video,
+								  const std::string &out_dir,
+								  const std::string &phase,
+								  std::string_view out_ext, size_t mod_step) {
+
+	std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
+
+	std::error_code e;
+
+	// TODO: handle error code variable in erroneous case
+	std::filesystem::create_directories(dir, e);
+
+	for (size_t i = 0; const auto &frame : video) {
+		if (i % mod_step == 0) {
+			auto fname = std::format("{}shot{}{}", dir.string(), i, out_ext);
+
+			// TODO: handle imwrite errors -- manually imdecode + write bin
+			cv::imwrite(fname, frame);
+		}
+
+		i++;
+	}
+
+	return dir;
 }
