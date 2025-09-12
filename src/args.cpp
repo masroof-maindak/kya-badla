@@ -3,7 +3,7 @@
 #include <optional>
 #include <print>
 
-ArgConfig parse_args(int argc, char *argv[]) {
+std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
 	argparse::ArgumentParser prog("chng");
 
 	ArgConfig params{.scale = std::nullopt, .frame_count = std::nullopt};
@@ -53,17 +53,15 @@ ArgConfig parse_args(int argc, char *argv[]) {
 		if (prog.is_used("-rs")) {
 			float f = prog.get<float>("-rs");
 
-			if (f <= 0 || f >= 1) {
-				std::println(stderr, "Erroneous float: {}. Ignoring.", f);
-			} else {
-				params.scale = f;
-			}
+			if (f <= 0 || f >= 1)
+				return std::unexpected(std::format(
+					"Erroneous float: {}. Scale must be between (0, 1).", f));
+
+			params.scale = f;
 		}
 	} catch (const std::exception &err) {
-		std::println(stderr, "{}\n\n{}", err.what(), prog.usage());
-		throw err;
-
-		// TODO: return std::unexpected;
+		auto errmsg = std::format("{}\n\n{}", err.what(), prog.usage());
+		return std::unexpected(errmsg);
 	}
 
 	return params;

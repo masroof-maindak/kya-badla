@@ -3,6 +3,7 @@
 
 #include <argparse/argparse.hpp>
 
+#include <expected>
 #include <optional>
 #include <string>
 
@@ -16,6 +17,6 @@ struct ArgConfig {
 	std::optional<uint> frame_count;
 };
 
-ArgConfig parse_args(int argc, char *argv[]);
+std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]);
 
 #endif // ARGS_H

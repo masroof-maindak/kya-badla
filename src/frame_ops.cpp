@@ -3,18 +3,16 @@
 #include <opencv2/opencv.hpp>
 
 #include <cstdint>
-#include <print>
 
-std::vector<cv::Mat> bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
+std::expected<std::vector<cv::Mat>, std::string>
+bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
 	std::vector<cv::Mat> ret{};
 	ret.reserve(video.size());
 
 	for (const cv::Mat &frame : video) {
 
-		if (frame.empty() || frame.type() != CV_8UC3) {
-			std::println(stderr,
-						 "[GRAYSCALE] Invalid type/empty frame. Skipping.");
-		}
+		if (frame.empty() || frame.type() != CV_8UC3)
+			return std::unexpected("[GRAYSCALE] Invalid type/empty frame.");
 
 		cv::Mat tmp{};
 		tmp.create(frame.rows, frame.cols, CV_8UC1);
@@ -37,17 +35,14 @@ std::vector<cv::Mat> bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
 	return ret;
 }
 
-cv::Mat compute_mean(const std::vector<cv::Mat> &video,
-					 std::optional<uint> frame_count) {
-	if (video.empty()) {
-		// TODO: std::expected
-		throw std::runtime_error("Empty video provided.");
-	}
+std::expected<cv::Mat, std::string>
+compute_mean(const std::vector<cv::Mat> &video,
+			 std::optional<uint> frame_count) {
+	if (video.empty())
+		return std::unexpected("Empty video provided.");
 
-	if (frame_count.has_value() && frame_count.value() > video.size()) {
-		// TODO: std::expected
-		throw std::runtime_error("Invalid frame_count.");
-	}
+	if (frame_count.has_value() && frame_count.value() > video.size())
+		return std::unexpected("Invalid frame_count.");
 
 	const size_t n_frames =
 		frame_count.has_value() ? frame_count.value() : video.size();
@@ -79,18 +74,14 @@ cv::Mat compute_mean(const std::vector<cv::Mat> &video,
 	return ret;
 }
 
-cv::Mat compute_variance(const std::vector<cv::Mat> &video,
-						 const cv::Mat &mean_frame,
-						 std::optional<uint> frame_count) {
-	if (video.empty()) {
-		// TODO: std::expected
-		throw std::runtime_error("Empty video provided.");
-	}
+std::expected<cv::Mat, std::string>
+compute_variance(const std::vector<cv::Mat> &video, const cv::Mat &mean_frame,
+				 std::optional<uint> frame_count) {
+	if (video.empty())
+		return std::unexpected("Empty video provided.");
 
-	if (frame_count.has_value() && frame_count.value() > video.size()) {
-		// TODO: std::expected
-		throw std::runtime_error("Invalid frame_count.");
-	}
+	if (frame_count.has_value() && frame_count.value() > video.size())
+		return std::unexpected("Invalid frame_count.");
 
 	const size_t n_frames =
 		frame_count.has_value() ? frame_count.value() : video.size();
