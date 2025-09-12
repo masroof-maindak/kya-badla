@@ -37,6 +37,12 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         .help("specify the first #N frames to use for background generation")
         .scan<'u', uint>();
 
+    prog.add_argument("-mt", "--mahalanobis-threshold")
+        .help("specify the threshold to be used to compute the mask via Mahalanobis Distance")
+        .default_value(5)
+        .scan<'i', int>()
+        .store_into(params.mn_threshold);
+
     try {
         prog.parse_args(argc, argv);
 

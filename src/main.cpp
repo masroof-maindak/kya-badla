@@ -52,7 +52,9 @@ int main(int argc, char *argv[]) {
         std::println(stderr, "Error computing mean: {}", mean_expected.error());
         return 1;
     }
-    auto mean               = mean_expected.value();
+    auto mean = mean_expected.value();
+
+    // Save mean frame
     auto save_mean_expected = save_image(mean, args.output_dir, "mean", args.output_ext);
     if (!save_mean_expected.has_value()) {
         std::println(stderr, "Error saving mean image: {}", save_mean_expected.error());
@@ -66,7 +68,9 @@ int main(int argc, char *argv[]) {
         std::println(stderr, "Error computing variance: {}", variance_expected.error());
         return 1;
     }
-    auto variance               = variance_expected.value();
+    auto variance = variance_expected.value();
+
+    // Save variance frame
     auto save_variance_expected = save_image(variance, args.output_dir, "variance", args.output_ext);
     if (!save_variance_expected.has_value()) {
         std::println(stderr, "Error saving variance image: {}", save_variance_expected.error());
@@ -74,7 +78,16 @@ int main(int argc, char *argv[]) {
     }
     std::println("Computed and saved variance.");
 
-    // TODO: Mahalanobis Distance
+    // Mahalanobis Distance
+    auto mn_masks_expected = compute_mask(video_gray, mean, variance, args.mn_threshold);
+    if (!mn_masks_expected.has_value()) {
+        std::println(stderr, "Error computing Mahalanobis distance masks: {}", mn_masks_expected.error());
+        return 1;
+    }
+    auto mn_masks = mn_masks_expected.value();
+    std::println("Succesfully computed Mahalanobis distance masks w/ threshold {}.", args.mn_threshold);
+
+    // TODO: dilation/erosion
 
     return 0;
 }
