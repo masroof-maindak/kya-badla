@@ -21,6 +21,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(argparse)
 
 find_package(OpenCV REQUIRED)
-add_executable(chng "src/main.cpp" "src/args.cpp")
+add_executable(
+    chng
+    "src/main.cpp"
+    "src/args.cpp"
+    "src/io.cpp"
+    "src/frame_ops.cpp"
+)
 target_include_directories(chng PRIVATE "include/" ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(chng PRIVATE argparse ${OpenCV_LIBS})
