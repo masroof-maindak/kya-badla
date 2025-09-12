@@ -1,8 +1,8 @@
 # Kya Badla?
 
-Zero-point-five dependency (OpenCV is only used for container classes and to load frames) computer vision project that takes a 'video' as output and outputs a video highlighting 'change' in the original video.
+Zero-point-five dependency (OpenCV is used solely for container classes and to load frames, and ArgParse is used only to, well, parse arguments) computer vision project that takes a 'video' as output and outputs another video highlighting 'change' in the original video.
 
-Just about everything in terms of actual classical CV algorithms has been done from scratch, with (to the best of my ability) best modern C++ practices.
+Just about everything in terms of actual classical CV algorithms has been done from scratch, with, to the best of my ability and patience, modern C++ practices.
 
 ## Usage
 
@@ -14,6 +14,12 @@ cmake -DCMAKE_BUILD_TYPE=Release .. # Or 'Debug' if you want to hack away.
 cmake --build .
 ./kybdl -i <input-dir> -o <output-dir>
 ```
+
+## Features
+
+- Grayscale conversion
+- Mean & variance calculation
+- Mahalanobis distance-based masking
 
 ## Assumptions
 
