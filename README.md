@@ -35,4 +35,4 @@ sudo pacman -S opencv qt6-base vtk hdf5
 
 ## Acknowledgements
 
-- [Convert RGB to Grayscale Algorithms](https://fiveko.com/blog/convert-rgb-to-grayscale-algorithms/)
+- [ArgParse](https://github.com/p-ranav/argparse)
