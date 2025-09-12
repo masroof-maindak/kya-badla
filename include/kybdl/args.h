@@ -13,6 +13,7 @@ struct ArgConfig {
 	std::string output_ext;
 	std::string video_format;
 	std::optional<float> scale;
+	std::optional<uint> frame_count;
 };
 
 ArgConfig parse_args(int argc, char *argv[]);

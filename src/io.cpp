@@ -1,8 +1,10 @@
+#include <filesystem>
 #include <kybdl/io.h>
 
 #include <opencv2/opencv.hpp>
 
 #include <print>
+#include <stdexcept>
 
 std::vector<cv::Mat> read_frames(std::string_view input_dir,
 								 std::string_view input_ext,
@@ -52,16 +54,19 @@ std::filesystem::path save_frames(const std::vector<cv::Mat> &video,
 
 	std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
 
-	std::error_code e;
-
-	// TODO: handle error code variable in erroneous case
-	std::filesystem::create_directories(dir, e);
+	if (!std::filesystem::exists(dir)) {
+		std::error_code e;
+		if (!std::filesystem::create_directories(dir, e)) {
+			// TODO: handle error code variable in erroneous case
+			// TODO: return std::unexpected;
+			throw std::runtime_error("Failed to create directory.");
+		}
+	}
 
 	for (size_t i = 0; const cv::Mat &frame : video) {
 		if (i % mod_step == 0) {
 			auto fname = std::format("{}shot{}{}", dir.string(), i, out_ext);
-
-			// TODO: handle imwrite errors -- manually imdecode + write bin
+			// TODO: handle imwrite errors
 			cv::imwrite(fname, frame);
 		}
 
@@ -77,14 +82,17 @@ std::filesystem::path save_image(const cv::Mat &img, const std::string &out_dir,
 
 	std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
 
-	std::error_code e;
-
-	// TODO: handle error code variable in erroneous case
-	std::filesystem::create_directories(dir, e);
+	if (!std::filesystem::exists(dir)) {
+		std::error_code e;
+		if (!std::filesystem::create_directories(dir, e)) {
+			// TODO: handle error code variable in erroneous case
+			// TODO: return std::unexpected;
+			throw std::runtime_error("Failed to create directory.");
+		}
+	}
 
 	auto fname = std::format("{}img{}", dir.string(), out_ext);
-
-	// TODO: handle imwrite errors -- manually imdecode + write bin
+	// TODO: handle imwrite errors
 	cv::imwrite(fname, img);
 
 	return dir;

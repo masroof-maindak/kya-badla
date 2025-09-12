@@ -6,7 +6,7 @@
 ArgConfig parse_args(int argc, char *argv[]) {
 	argparse::ArgumentParser prog("chng");
 
-	ArgConfig params{.scale = std::nullopt};
+	ArgConfig params{.scale = std::nullopt, .frame_count = std::nullopt};
 
 	prog.add_argument("-o", "--output-dir")
 		.required()
@@ -40,11 +40,18 @@ ArgConfig parse_args(int argc, char *argv[]) {
 		.help("specify the input frames' scale post-resizing -- (0 - 1)")
 		.scan<'g', float>();
 
+	prog.add_argument("-fc", "--frame-count")
+		.help("specify the first #N frames to use for background generation")
+		.scan<'u', uint>();
+
 	try {
 		prog.parse_args(argc, argv);
 
-		if (prog.is_used("--resize-scale")) {
-			float f = prog.get<float>("--resize-scale");
+		if (prog.is_used("-fc"))
+			params.frame_count = prog.get<uint>("-fc");
+
+		if (prog.is_used("-rs")) {
+			float f = prog.get<float>("-rs");
 
 			if (f <= 0 || f >= 1) {
 				std::println(stderr, "Erroneous float: {}. Ignoring.", f);
@@ -52,7 +59,6 @@ ArgConfig parse_args(int argc, char *argv[]) {
 				params.scale = f;
 			}
 		}
-
 	} catch (const std::exception &err) {
 		std::println(stderr, "{}\n\n{}", err.what(), prog.usage());
 		throw err;

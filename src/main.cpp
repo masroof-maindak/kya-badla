@@ -27,11 +27,12 @@ int main(int argc, char *argv[]) {
 	save_frames(video_gray, args.output_dir, "gray", args.output_ext, 10);
 	std::println("Saved gray frames.");
 
-	cv::Mat mean{std::move(compute_mean(video_gray))};
+	cv::Mat mean{std::move(compute_mean(video_gray, args.frame_count))};
 	save_image(mean, args.output_dir, "mean", args.output_ext);
-	std::println("Computed and saved variance.");
+	std::println("Computed and saved mean.");
 
-	cv::Mat variance{std::move(compute_variance(video_gray, mean))};
+	cv::Mat variance{
+		std::move(compute_variance(video_gray, mean, args.frame_count))};
 	save_image(variance, args.output_dir, "variance", args.output_ext);
 	std::println("Computed and saved variance.");
 

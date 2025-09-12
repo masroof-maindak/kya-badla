@@ -37,15 +37,22 @@ std::vector<cv::Mat> bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
 	return ret;
 }
 
-cv::Mat compute_mean(const std::vector<cv::Mat> &video) {
+cv::Mat compute_mean(const std::vector<cv::Mat> &video,
+					 std::optional<uint> frame_count) {
 	if (video.empty()) {
 		// TODO: std::expected
 		throw std::runtime_error("Empty video provided.");
 	}
 
-	const size_t n_frames = video.size();
-	const int rows		  = video.at(0).rows;
-	const int cols		  = video.at(0).cols;
+	if (frame_count.has_value() && frame_count.value() > video.size()) {
+		// TODO: std::expected
+		throw std::runtime_error("Invalid frame_count.");
+	}
+
+	const size_t n_frames =
+		frame_count.has_value() ? frame_count.value() : video.size();
+	const int rows = video.at(0).rows;
+	const int cols = video.at(0).cols;
 
 	cv::Mat ret{};
 	ret.create(rows, cols, CV_32FC1);
@@ -54,11 +61,18 @@ cv::Mat compute_mean(const std::vector<cv::Mat> &video) {
 		for (int x = 0; x < cols; x++) {
 			int sum{};
 
-			for (const cv::Mat &frame : video)
-				sum += frame.at<std::uint8_t>(y, x);
+			auto it	 = video.begin();
+			auto end = frame_count.has_value()
+						   ? std::next(it, frame_count.value())
+						   : video.end();
 
-			float mean			= static_cast<float>(sum) / n_frames;
-			ret.at<float>(y, x) = mean;
+			for (; it != end; it++) {
+				const cv::Mat &frame = *it;
+				sum += frame.at<std::uint8_t>(y, x);
+			}
+
+			float result		= static_cast<float>(sum) / n_frames;
+			ret.at<float>(y, x) = result;
 		}
 	}
 
@@ -66,15 +80,22 @@ cv::Mat compute_mean(const std::vector<cv::Mat> &video) {
 }
 
 cv::Mat compute_variance(const std::vector<cv::Mat> &video,
-						 const cv::Mat &mean_frame) {
+						 const cv::Mat &mean_frame,
+						 std::optional<uint> frame_count) {
 	if (video.empty()) {
 		// TODO: std::expected
 		throw std::runtime_error("Empty video provided.");
 	}
 
-	const int n_frames = video.size();
-	const int rows	   = mean_frame.rows;
-	const int cols	   = mean_frame.cols;
+	if (frame_count.has_value() && frame_count.value() > video.size()) {
+		// TODO: std::expected
+		throw std::runtime_error("Invalid frame_count.");
+	}
+
+	const size_t n_frames =
+		frame_count.has_value() ? frame_count.value() : video.size();
+	const int rows = mean_frame.rows;
+	const int cols = mean_frame.cols;
 
 	cv::Mat ret{};
 	ret.create(rows, cols, CV_32FC1);
@@ -83,7 +104,13 @@ cv::Mat compute_variance(const std::vector<cv::Mat> &video,
 		for (int x = 0; x < cols; x++) {
 			int sum{};
 
-			for (const cv::Mat &frame : video) {
+			auto it	 = video.begin();
+			auto end = frame_count.has_value()
+						   ? std::next(it, frame_count.value())
+						   : video.end();
+
+			for (; it != end; it++) {
+				const cv::Mat &frame   = *it;
 				std::uint8_t intensity = (frame.at<std::uint8_t>(y, x));
 				float difference	   = intensity - mean_frame.at<float>(y, x);
 				sum += (difference * difference);
