@@ -9,7 +9,7 @@ using namespace cv;
 
 std::vector<cv::Mat> read_frames(std::string_view input_dir,
 								 std::string_view input_ext,
-								 std::optional<float> resize_perc) {
+								 std::optional<float> resize_scale) {
 	std::vector<cv::Mat> video{};
 
 	const std::filesystem::path dir_path{input_dir};
@@ -31,9 +31,9 @@ std::vector<cv::Mat> read_frames(std::string_view input_dir,
 							 entry.path().string());
 			}
 
-			if (resize_perc.has_value()) {
+			if (resize_scale.has_value()) {
 				cv::Mat resized{};
-				float f = resize_perc.value();
+				float f = resize_scale.value();
 				cv::resize(img, resized, cv::Size(), f, f, cv::INTER_LINEAR);
 				img = resized;
 			}

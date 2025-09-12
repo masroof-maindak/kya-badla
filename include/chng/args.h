@@ -3,6 +3,7 @@
 
 #include <argparse/argparse.hpp>
 
+#include <optional>
 #include <string>
 
 struct ArgConfig {
@@ -11,6 +12,7 @@ struct ArgConfig {
 	std::string input_ext;
 	std::string output_ext;
 	std::string video_format;
+	std::optional<float> scale;
 };
 
 ArgConfig parse_args(int argc, char *argv[]);

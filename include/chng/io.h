@@ -9,6 +9,6 @@
 
 std::vector<cv::Mat> read_frames(std::string_view input_dir,
 								 std::string_view input_ext,
-								 std::optional<float> resize_perc);
+								 std::optional<float> resize_scale);
 
 #endif // IO_H

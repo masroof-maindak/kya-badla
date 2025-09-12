@@ -7,15 +7,15 @@
 #include <print>
 
 int main(int argc, char *argv[]) {
-	ArgConfig params{};
+	ArgConfig args{};
 
 	try {
-		params = std::move(parse_args(argc, argv));
+		args = std::move(parse_args(argc, argv));
 	} catch (std::exception &_) {
 		return 1;
 	}
 
-	auto video_colour = read_frames(params.input_dir, params.input_ext, 0.5);
+	auto video_colour = read_frames(args.input_dir, args.input_ext, args.scale);
 	std::println("Loaded original video.");
 
 	auto video_gray = bgr_video_to_grayscale(video_colour);
@@ -23,6 +23,8 @@ int main(int argc, char *argv[]) {
 
 	video_colour.clear();
 	std::println("Freed colour video.");
+
+	cv::imwrite("aa.jpg", video_gray[0]);
 
 	return 0;
 }
