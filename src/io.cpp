@@ -3,8 +3,6 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <print>
-
 std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view input_dir, std::string_view input_ext,
                                                              float resize_scale) {
     std::vector<cv::Mat> video{};
@@ -22,10 +20,8 @@ std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view in
 
             cv::Mat img{cv::imread(entry.path(), cv::IMREAD_COLOR_BGR)};
 
-            if (img.empty()) {
-                std::println(stderr, "[LOADER] Failed to read/parse img: `{}`.", entry.path().string());
+            if (img.empty())
                 return std::unexpected("Failed to read/parse image: " + entry.path().string());
-            }
 
             if (resize_scale != 1.0) {
                 cv::Mat resized{};
@@ -50,7 +46,7 @@ std::expected<std::filesystem::path, std::string> save_frames(const std::vector<
                                                               const std::string &out_dir, const std::string &phase,
                                                               std::string_view out_ext, int frame_save_step) {
 
-    std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
+    std::filesystem::path dir{out_dir + "/intermediate/" + phase + "/"};
 
     if (!std::filesystem::exists(dir)) {
         std::error_code e;
@@ -74,7 +70,7 @@ std::expected<std::filesystem::path, std::string> save_frames(const std::vector<
 std::expected<std::filesystem::path, std::string> save_image(const cv::Mat &img, const std::string &out_dir,
                                                              const std::string &phase, std::string_view out_ext) {
 
-    std::filesystem::path dir{out_dir + "/tmp/" + phase + "/"};
+    std::filesystem::path dir{out_dir + "/intermediate/" + phase + "/"};
 
     if (!std::filesystem::exists(dir)) {
         std::error_code e;
