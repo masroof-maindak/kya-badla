@@ -3,9 +3,9 @@
 
 #include <opencv2/opencv.hpp>
 
-std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view input_dir, std::string_view input_ext,
+std::expected<Video, std::string> read_frames(std::string_view input_dir, std::string_view input_ext,
                                                              float resize_scale) {
-    std::vector<cv::Mat> video{};
+    Video video{};
 
     const std::filesystem::path dir_path{input_dir};
 
@@ -42,7 +42,7 @@ std::expected<std::vector<cv::Mat>, std::string> read_frames(std::string_view in
     return video;
 }
 
-std::expected<std::filesystem::path, std::string> save_frames(const std::vector<cv::Mat> &video,
+std::expected<std::filesystem::path, std::string> save_frames(const Video &video,
                                                               const std::string &out_dir, const std::string &phase,
                                                               std::string_view out_ext, int frame_save_step) {
 

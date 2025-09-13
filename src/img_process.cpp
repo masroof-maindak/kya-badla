@@ -1,12 +1,13 @@
 #include <kybdl/img_process.h>
+#include <kybdl/utils.h>
 
 #include <opencv2/opencv.hpp>
 
 #include <algorithm>
 #include <cstdint>
 
-std::expected<std::vector<cv::Mat>, std::string> bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
-    std::vector<cv::Mat> video_gray{};
+std::expected<Video, std::string> bgr_video_to_grayscale(const Video &video) {
+    Video video_gray{};
     video_gray.reserve(video.size());
 
     for (const cv::Mat &frame : video) {

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-std::expected<cv::Mat, std::string> compute_mean(const std::vector<cv::Mat> &video, std::optional<int> frame_count) {
+std::expected<cv::Mat, std::string> compute_mean(const Video &video, std::optional<int> frame_count) {
     if (video.empty())
         return std::unexpected("[MEAN] Empty video provided.");
 
@@ -50,7 +50,7 @@ std::expected<cv::Mat, std::string> compute_mean(const std::vector<cv::Mat> &vid
     return mean_frame;
 }
 
-std::expected<cv::Mat, std::string> compute_variance(const std::vector<cv::Mat> &video, const cv::Mat &mean_frame,
+std::expected<cv::Mat, std::string> compute_variance(const Video &video, const cv::Mat &mean_frame,
                                                      std::optional<int> frame_count) {
     if (video.empty())
         return std::unexpected("[VARIANCE] Empty video provided.");
@@ -91,13 +91,13 @@ std::expected<cv::Mat, std::string> compute_variance(const std::vector<cv::Mat> 
     return variance_frame;
 }
 
-std::expected<std::vector<cv::Mat>, std::string> compute_mask(const std::vector<cv::Mat> &video,
+std::expected<Video, std::string> compute_mask(const Video &video,
                                                               const cv::Mat &mean_frame, const cv::Mat &variance_frame,
                                                               int threshold) {
     if (video.empty())
         return std::unexpected("[MASKS] Empty video provided.");
 
-    std::vector<cv::Mat> masks{};
+    Video masks{};
     masks.reserve(video.size());
 
     for (const cv::Mat &frame : video) {
