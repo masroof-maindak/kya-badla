@@ -1,6 +1,7 @@
 #include <kybdl/args.h>
 #include <kybdl/img_process.h>
 #include <kybdl/io.h>
+#include <kybdl/morph.h>
 #include <kybdl/stats.h>
 
 #include <expected>
@@ -48,7 +49,17 @@ int main(int argc, char *argv[]) {
                "Error saving masked frames");
         std::println("Saved masked frames.");
 
-        // TODO: dilation/erosion
+        auto opened_masks = unwrap(open_masks(masks, args.kernel_size, args.iterations), "Error opening masked frames");
+        std::println("Opened masks.");
+
+        masks.clear();
+        std::println("Freed old masks");
+
+        unwrap(save_frames(opened_masks, args.output_dir, "mask-opened", args.output_ext, args.frame_save_step),
+               "Error saving opened mask frames");
+        std::println("Saved opened mask frames.");
+
+        // TODO: connected components
 
     } catch (const std::runtime_error &e) {
         std::println(stderr, "Error: {}", e.what());
