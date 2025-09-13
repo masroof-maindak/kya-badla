@@ -1,10 +1,12 @@
-#include <filesystem>
 #include <kybdl/io.h>
 
 #include <opencv2/opencv.hpp>
 
+#include <filesystem>
+#include <expected>
+
 std::expected<Video, std::string> read_frames(std::string_view input_dir, std::string_view input_ext,
-                                                             float resize_scale) {
+                                              float resize_scale) {
     Video video{};
 
     const std::filesystem::path dir_path{input_dir};
@@ -39,12 +41,21 @@ std::expected<Video, std::string> read_frames(std::string_view input_dir, std::s
     if (video.empty())
         return std::unexpected("No frames found in the input directory.");
 
+    const int type  = video[0].type();
+    const auto size = video[0].size();
+
+    for (size_t i = 0; const auto &frame : video) {
+        if (frame.size() != size || frame.type() != type)
+            return std::unexpected(std::format("Input frame {} doesn't match first frame's size or type", i));
+        i++;
+    }
+
     return video;
 }
 
-std::expected<std::filesystem::path, std::string> save_frames(const Video &video,
-                                                              const std::string &out_dir, const std::string &phase,
-                                                              std::string_view out_ext, int frame_save_step) {
+std::expected<std::filesystem::path, std::string> save_frames(const Video &video, const std::string &out_dir,
+                                                              const std::string &phase, std::string_view out_ext,
+                                                              int frame_save_step) {
 
     std::filesystem::path dir{out_dir + "/intermediate/" + phase + "/"};
 
