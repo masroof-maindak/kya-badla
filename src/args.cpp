@@ -6,41 +6,41 @@
 std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
     argparse::ArgumentParser prog("kybdl", "v2025-09-13a", argparse::default_arguments::help);
 
-    ArgConfig params{.frame_count = std::nullopt};
+    ArgConfig args{.frame_count = std::nullopt};
 
-    prog.add_argument("-o", "--output-dir").required().help("specify the output dir").store_into(params.output_dir);
+    prog.add_argument("-o", "--output-dir").required().help("specify the output dir").store_into(args.output_dir);
 
-    prog.add_argument("-i", "--input-dir").required().help("specify the input dir").store_into(params.input_dir);
+    prog.add_argument("-i", "--input-dir").required().help("specify the input dir").store_into(args.input_dir);
 
     prog.add_argument("-ie", "--input-ext")
         .help("specify the input frames' extension")
         .default_value(".png")
         .choices(".png", ".jpg")
-        .store_into(params.input_ext);
+        .store_into(args.input_ext);
 
     prog.add_argument("-oe", "--output-ext")
         .help("specify the output frames' extension")
         .default_value(".png")
         .choices(".png", ".jpg")
-        .store_into(params.output_ext);
+        .store_into(args.output_ext);
 
     prog.add_argument("-vf", "--video-format")
         .help("specify the output video's extension")
         .default_value(".mp4")
         .choices(".mp4", ".avi")
-        .store_into(params.video_format);
+        .store_into(args.video_format);
 
     prog.add_argument("-rs", "--resize-scale")
         .help("specify the input frames' scale post-resizing -- (0 - 1)")
         .default_value(1.0f)
-        .store_into(params.scale) // Broken when it's at the bottom, because why wouldn't it be.
+        .store_into(args.scale) // Broken when it's at the bottom, because why wouldn't it be.
         .scan<'g', float>();
 
     prog.add_argument("-fss", "--frame-save-step")
         .help("specify the number of frames after which a new frame will be saved")
         .default_value(10)
         .scan<'i', int>()
-        .store_into(params.frame_save_step);
+        .store_into(args.frame_save_step);
 
     prog.add_argument("-fc", "--frame-count")
         .help("specify the first #N frames to use for background generation")
@@ -50,13 +50,13 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         .help("specify the threshold to be used to compute the mask via Mahalanobis Distance")
         .default_value(5)
         .scan<'i', int>()
-        .store_into(params.mn_threshold);
+        .store_into(args.mn_threshold);
 
     prog.add_argument("-ks", "--kernel-size")
         .help("specify the size of the kernel to be used for dilation/erosion")
         .default_value(3)
         .scan<'i', int>()
-        .store_into(params.kernel_size);
+        .store_into(args.kernel_size);
 
     try {
         prog.parse_args(argc, argv);
@@ -72,7 +72,7 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
             return std::unexpected(std::format("Frame count can not be negative.", i));
 
         // Can't directly `.store_into()` std::optional<float>
-        params.frame_count = i;
+        args.frame_count = i;
     }
 
     if (prog.is_used("-ks")) {
@@ -99,5 +99,5 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
             return std::unexpected(std::format("Resize scale must be between (0, 1).", f));
     }
 
-    return params;
+    return args;
 }
