@@ -119,7 +119,7 @@ std::expected<std::vector<cv::Mat>, std::string> compute_mask(const std::vector<
                 float internal         = numerator / variance_row[x];
                 float sqrt             = sqrtf(internal);
 
-                mask_row[x] = sqrt > threshold;
+                mask_row[x] = sqrt > threshold ? 255 : 0;
             }
         }
 

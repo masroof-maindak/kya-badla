@@ -89,14 +89,14 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
 
     if (prog.is_used("-mt")) {
         int i{prog.get<int>("-mt")};
-        if (i < 0)
-            return std::unexpected(std::format("Mahalanobis Distance threshold can not be -ve.", i));
+        if (i <= 0)
+            return std::unexpected(std::format("Mahalanobis Distance' threshold must be +ve.", i));
     }
 
     if (prog.is_used("-rs")) {
         float f{prog.get<float>("-rs")};
         if (f <= 0 || f > 1)
-            return std::unexpected(std::format("Erroneous float: {}. Scale must be between (0, 1).", f));
+            return std::unexpected(std::format("Resize scale must be between (0, 1).", f));
     }
 
     return params;

@@ -79,15 +79,15 @@ int main(int argc, char *argv[]) {
     std::println("Computed and saved variance.");
 
     // Mahalanobis Distance
-    auto mn_masks_expected = compute_mask(video_gray, mean, variance, args.mn_threshold);
-    if (!mn_masks_expected.has_value()) {
-        std::println(stderr, "Error computing Mahalanobis distance masks: {}", mn_masks_expected.error());
+    auto masks_expected = compute_mask(video_gray, mean, variance, args.mn_threshold);
+    if (!masks_expected.has_value()) {
+        std::println(stderr, "Error computing Mahalanobis distance masks: {}", masks_expected.error());
         return 1;
     }
-    auto mn_masks = mn_masks_expected.value();
+    auto masks = masks_expected.value();
     std::println("Succesfully computed Mahalanobis distance masks w/ threshold {}.", args.mn_threshold);
 
-    auto save_masks_expected = save_frames(mn_masks, args.output_dir, "mask", args.output_ext, args.frame_save_step);
+    auto save_masks_expected = save_frames(masks, args.output_dir, "mask", args.output_ext, args.frame_save_step);
     if (!save_masks_expected.has_value()) {
         std::println(stderr, "Error saving masked frames: {}", save_masks_expected.error());
         return 1;
