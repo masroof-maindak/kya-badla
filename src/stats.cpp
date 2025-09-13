@@ -91,9 +91,8 @@ std::expected<cv::Mat, std::string> compute_variance(const Video &video, const c
     return variance_frame;
 }
 
-std::expected<Video, std::string> compute_mask(const Video &video,
-                                                              const cv::Mat &mean_frame, const cv::Mat &variance_frame,
-                                                              int threshold) {
+std::expected<Video, std::string> compute_masks(const Video &video, const cv::Mat &mean_frame,
+                                               const cv::Mat &variance_frame, int threshold) {
     if (video.empty())
         return std::unexpected("[MASKS] Empty video provided.");
 

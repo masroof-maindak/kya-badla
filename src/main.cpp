@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
         unwrap(save_image(variance, args.output_dir, "variance", args.output_ext), "Error saving variance image");
         std::println("Computed and saved variance.");
 
-        auto masks = unwrap(compute_mask(video_gray, mean, variance, args.mn_threshold), "Error computing masks");
+        auto masks = unwrap(compute_masks(video_gray, mean, variance, args.mn_threshold), "Error computing masks");
         std::println("Succesfully computed Mahalanobis distance masks w/ threshold {}.", args.mn_threshold);
 
         unwrap(save_frames(masks, args.output_dir, "mask", args.output_ext, args.frame_save_step),

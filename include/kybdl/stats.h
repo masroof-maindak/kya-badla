@@ -32,7 +32,7 @@ std::expected<cv::Mat, std::string> compute_variance(const Video &video, const c
  * @param threshold Threshold value for Mahalanobis distance.
  * @return A vector of matrices of type CV_8UC1 (binary uint8_t) representing the change masks, or an error string.
  */
-std::expected<Video, std::string> compute_mask(const Video &video, const cv::Mat &mean_frame,
-                                               const cv::Mat &variance_frame, int threshold);
+std::expected<Video, std::string> compute_masks(const Video &video, const cv::Mat &mean_frame,
+                                                const cv::Mat &variance_frame, int threshold);
 
 #endif // STATS_H
