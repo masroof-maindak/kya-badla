@@ -6,8 +6,8 @@
 #include <cstdint>
 
 std::expected<std::vector<cv::Mat>, std::string> bgr_video_to_grayscale(const std::vector<cv::Mat> &video) {
-    std::vector<cv::Mat> ret{};
-    ret.reserve(video.size());
+    std::vector<cv::Mat> video_gray{};
+    video_gray.reserve(video.size());
 
     for (const cv::Mat &frame : video) {
 
@@ -29,8 +29,8 @@ std::expected<std::vector<cv::Mat>, std::string> bgr_video_to_grayscale(const st
             }
         }
 
-        ret.emplace_back(tmp);
+        video_gray.emplace_back(tmp);
     }
 
-    return ret;
+    return video_gray;
 }
