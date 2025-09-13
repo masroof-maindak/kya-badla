@@ -3,13 +3,12 @@
 
 #include <argparse/argparse.hpp>
 
-#include <cstdint>
 #include <expected>
 #include <optional>
 #include <string>
 
 struct ArgConfig {
-    std::uint8_t kernel_size;
+    int kernel_size;
     int mn_threshold;
     int frame_save_step;
     float scale;

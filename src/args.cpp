@@ -1,6 +1,6 @@
-#include <expected>
 #include <kybdl/args.h>
 
+#include <expected>
 #include <optional>
 
 std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
@@ -32,9 +32,9 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
 
     prog.add_argument("-rs", "--resize-scale")
         .help("specify the input frames' scale post-resizing -- (0 - 1)")
-        .default_value(1.0)
-        .scan<'g', float>()
-        .store_into(params.scale);
+        .default_value(1.0f)
+        .store_into(params.scale) // Broken when it's at the bottom, because why wouldn't it be.
+        .scan<'g', float>();
 
     prog.add_argument("-fss", "--frame-save-step")
         .help("specify the number of frames after which a new frame will be saved")
@@ -60,45 +60,43 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
 
     try {
         prog.parse_args(argc, argv);
-
-        if (prog.is_used("-fc")) {
-            int i{prog.get<int>("-fc")};
-
-            if (i < 0)
-                return std::unexpected(std::format("Erroneous arg {}. Count can not be negative.", i));
-
-            // Can't directly `.store_into()` std::optional<float>
-            params.frame_count = prog.get<uint>("-fc");
-        }
-
-        if (prog.is_used("-ks")) {
-            int i{prog.get<int>("-ks")};
-            if (i < 3 || i > 255)
-                return std::unexpected(std::format("Erroneous arg {}. Kernel size can range from 3 to 255", i));
-        }
-
-        if (prog.is_used("-fss")) {
-            int i{prog.get<int>("-fss")};
-            if (i < 0)
-                return std::unexpected(std::format("Erroneous arg {}. Frame save step can not be negative.", i));
-        }
-
-        if (prog.is_used("-mt")) {
-            int i{prog.get<int>("-mt")};
-            if (i < 0)
-                return std::unexpected(
-                    std::format("Erroneous arg {}. Mahalanobis Distance threshold can not be negative.", i));
-        }
-
-        if (prog.is_used("-rs")) {
-            float f{prog.get<float>("-rs")};
-            if (f <= 0 || f > 1)
-                return std::unexpected(std::format("Erroneous float: {}. Scale must be between (0, 1).", f));
-        }
-
     } catch (const std::exception &err) {
         auto errmsg = std::format("{}\n\n{}", err.what(), prog.usage());
         return std::unexpected(errmsg);
+    }
+
+    if (prog.is_used("-fc")) {
+        int i{prog.get<int>("-fc")};
+
+        if (i < 0)
+            return std::unexpected(std::format("Frame count can not be negative.", i));
+
+        // Can't directly `.store_into()` std::optional<float>
+        params.frame_count = i;
+    }
+
+    if (prog.is_used("-ks")) {
+        int i{prog.get<int>("-ks")};
+        if (i < 3 || i > 255 || i % 2 != 1)
+            return std::unexpected(std::format("Kernel size can range from 3 to 255 and must be odd.", i));
+    }
+
+    if (prog.is_used("-fss")) {
+        int i{prog.get<int>("-fss")};
+        if (i < 0)
+            return std::unexpected(std::format("Frame save step can not be -ve.", i));
+    }
+
+    if (prog.is_used("-mt")) {
+        int i{prog.get<int>("-mt")};
+        if (i < 0)
+            return std::unexpected(std::format("Mahalanobis Distance threshold can not be -ve.", i));
+    }
+
+    if (prog.is_used("-rs")) {
+        float f{prog.get<float>("-rs")};
+        if (f <= 0 || f > 1)
+            return std::unexpected(std::format("Erroneous float: {}. Scale must be between (0, 1).", f));
     }
 
     return params;
