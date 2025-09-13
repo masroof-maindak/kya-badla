@@ -94,9 +94,15 @@ std::expected<Video, std::string> open_masks(const Video &video, int kernel_size
     if (iterations <= 0)
         return std::unexpected(std::format("[OPEN] Invalid iteration count provided: {}", iterations));
 
+    // NOTE: accounts for padding!
+    if (kernel_size > video[0].rows || kernel_size > video[0].cols)
+        return std::unexpected(std::format("[OPEN] Kernel size {} is too large for image dimensions {}x{}.",
+                                           kernel_size, video[0].rows, video[0].cols));
+
     auto kernel_expected = create_kernel(kernel_size);
     if (!kernel_expected.has_value())
         return std::unexpected(kernel_expected.error());
+
     const cv::Mat kernel{kernel_expected.value()};
 
     Video eroded_masks{};
