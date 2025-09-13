@@ -39,9 +39,9 @@ int main(int argc, char *argv[]) {
     std::println("Freed colour video.");
 
     // Save frames - grayscale
-    auto save_frames_expected = save_frames(video_gray, args.output_dir, "gray", args.output_ext, args.frame_save_step);
-    if (!save_frames_expected.has_value()) {
-        std::println(stderr, "Error saving gray frames: {}", save_frames_expected.error());
+    auto save_gray_expected = save_frames(video_gray, args.output_dir, "gray", args.output_ext, args.frame_save_step);
+    if (!save_gray_expected.has_value()) {
+        std::println(stderr, "Error saving gray frames: {}", save_gray_expected.error());
         return 1;
     }
     std::println("Saved gray frames.");
@@ -86,6 +86,13 @@ int main(int argc, char *argv[]) {
     }
     auto mn_masks = mn_masks_expected.value();
     std::println("Succesfully computed Mahalanobis distance masks w/ threshold {}.", args.mn_threshold);
+
+    auto save_masks_expected = save_frames(mn_masks, args.output_dir, "mask", args.output_ext, args.frame_save_step);
+    if (!save_masks_expected.has_value()) {
+        std::println(stderr, "Error saving masked frames: {}", save_masks_expected.error());
+        return 1;
+    }
+    std::println("Saved masked frames.");
 
     // TODO: dilation/erosion
 
