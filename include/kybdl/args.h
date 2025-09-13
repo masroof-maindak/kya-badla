@@ -11,6 +11,7 @@ struct ArgConfig {
     int kernel_size;
     int mn_threshold;
     int frame_save_step;
+    int iterations;
     float scale;
     std::optional<int> frame_count;
     std::string input_dir;

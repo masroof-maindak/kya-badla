@@ -58,6 +58,12 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         .scan<'i', int>()
         .store_into(args.kernel_size);
 
+    prog.add_argument("-mi", "--iterations")
+        .help("specify the number of iterations the morphological operations should run for")
+        .default_value(1)
+        .scan<'i', int>()
+        .store_into(args.kernel_size);
+
     try {
         prog.parse_args(argc, argv);
     } catch (const std::exception &err) {
@@ -69,7 +75,7 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         int i{prog.get<int>("-fc")};
 
         if (i < 0)
-            return std::unexpected(std::format("Frame count can not be negative.", i));
+            return std::unexpected(std::format("Frame count can not be negative: {}", i));
 
         // Can't directly `.store_into()` std::optional<float>
         args.frame_count = i;
@@ -78,25 +84,31 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
     if (prog.is_used("-ks")) {
         int i{prog.get<int>("-ks")};
         if (i < 3 || i > 255 || i % 2 != 1)
-            return std::unexpected(std::format("Kernel size can range from 3 to 255 and must be odd.", i));
+            return std::unexpected(std::format("Kernel size can range from 3 to 255 and must be odd: {}", i));
     }
 
     if (prog.is_used("-fss")) {
         int i{prog.get<int>("-fss")};
         if (i < 0)
-            return std::unexpected(std::format("Frame save step can not be -ve.", i));
+            return std::unexpected(std::format("Frame save step can not be -ve: {}", i));
     }
 
     if (prog.is_used("-mt")) {
         int i{prog.get<int>("-mt")};
         if (i <= 0)
-            return std::unexpected(std::format("Mahalanobis Distance' threshold must be +ve.", i));
+            return std::unexpected(std::format("Mahalanobis Distance' threshold must be +ve: {}", i));
+    }
+
+    if (prog.is_used("-mi")) {
+        int i{prog.get<int>("-mi")};
+        if (i <= 0)
+            return std::unexpected(std::format("Morphological operation iteration count must be +ve: {}", i));
     }
 
     if (prog.is_used("-rs")) {
         float f{prog.get<float>("-rs")};
         if (f <= 0 || f > 1)
-            return std::unexpected(std::format("Resize scale must be between (0, 1).", f));
+            return std::unexpected(std::format("Resize scale must be between (0, 1): {}", f));
     }
 
     return args;
