@@ -28,6 +28,7 @@ add_executable(
     "src/io.cpp"
     "src/img_process.cpp"
     "src/stats.cpp"
+    "src/morph.cpp"
 )
 target_include_directories(kybdl PRIVATE "include/" ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(kybdl PRIVATE argparse ${OpenCV_LIBS})
