@@ -2,12 +2,12 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <filesystem>
 #include <expected>
+#include <filesystem>
 
 std::expected<Video, std::string> read_frames(std::string_view input_dir, std::string_view input_ext,
                                               float resize_scale) {
-    Video video{};
+    std::vector<std::string> frame_paths{};
 
     const std::filesystem::path dir_path{input_dir};
 
@@ -20,26 +20,35 @@ std::expected<Video, std::string> read_frames(std::string_view input_dir, std::s
             if (entry.path().extension() != input_ext)
                 continue;
 
-            cv::Mat img{cv::imread(entry.path(), cv::IMREAD_COLOR_BGR)};
-
-            if (img.empty())
-                return std::unexpected("Failed to read/parse image: " + entry.path().string());
-
-            if (resize_scale != 1.0) {
-                cv::Mat resized{};
-                float f{resize_scale};
-                cv::resize(img, resized, cv::Size(), f, f, cv::INTER_LINEAR);
-                img = resized;
-            }
-
-            video.emplace_back(img);
+            frame_paths.emplace_back(entry.path().string());
         }
     } catch (const std::filesystem::filesystem_error &err) {
         return std::unexpected(err.what());
     }
 
-    if (video.empty())
+    if (frame_paths.empty())
         return std::unexpected("No frames found in the input directory.");
+
+    std::sort(frame_paths.begin(), frame_paths.end());
+
+    Video video{};
+    video.reserve(frame_paths.size());
+
+    for (const auto &path : frame_paths) {
+        cv::Mat img{cv::imread(path, cv::IMREAD_COLOR_BGR)};
+
+        if (img.empty())
+            return std::unexpected("Failed to read/parse image: " + path);
+
+        if (resize_scale != 1.0) {
+            cv::Mat resized{};
+            float f{resize_scale};
+            cv::resize(img, resized, cv::Size(), f, f, cv::INTER_LINEAR);
+            img = resized;
+        }
+
+        video.emplace_back(img);
+    }
 
     const int type  = video[0].type();
     const auto size = video[0].size();
