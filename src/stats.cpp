@@ -83,8 +83,8 @@ std::expected<cv::Mat, std::string> compute_variance(const Video &video, const c
                 sum += (difference * difference);
             }
 
-            float variance  = static_cast<float>(sum) / n_frames;
-            variance_row[x] = variance;
+            float result    = static_cast<float>(sum) / n_frames;
+            variance_row[x] = result;
         }
     }
 
@@ -92,7 +92,7 @@ std::expected<cv::Mat, std::string> compute_variance(const Video &video, const c
 }
 
 std::expected<Video, std::string> compute_masks(const Video &video, const cv::Mat &mean_frame,
-                                               const cv::Mat &variance_frame, int threshold) {
+                                                const cv::Mat &variance_frame, int threshold) {
     if (video.empty())
         return std::unexpected("[MASKS] Empty video provided.");
 

@@ -25,6 +25,9 @@ std::expected<cv::Mat, std::string> compute_mean(const Video &video, std::option
 std::expected<cv::Mat, std::string> compute_variance(const Video &video, const cv::Mat &mean_frame,
                                                      std::optional<int> frame_count);
 
+// TODO: DRYness b/w compute_mean & comput_variance. Use std::function to replace content of range-based for loop over
+// video's iterator
+
 /**
  * @param video Input grayscale video as a vector of matrices of type CV_8UC1 (uint8_t).
  * @param mean_frame Mean frame as a grayscale HxW matrix of type CV_32FC1 (float).
