@@ -15,7 +15,7 @@ enum class MorphOp {
 
 /**
  * @param dim Dimension of the kernel (must be odd and between 3 and 255).
- * @return A square kernel matrix of type CV_8UC1, or an error string.
+ * @return A binary, square kernel matrix of type CV_8UC1, or an error string.
  */
 static std::expected<cv::Mat, std::string> create_kernel(int dim);
 
@@ -27,12 +27,13 @@ static std::expected<cv::Mat, std::string> create_kernel(int dim);
 static cv::Mat create_padded_copy(const cv::Mat &img, int dim);
 
 /**
- * @param kernel Kernel for the morphological operation.
+ * @param frame Padded, binarily-thresholded frame of type CV_8UC1.
+ * @param kernel Binary, square kernel to use in morphological operation, of type CV_8UC1.
  * @param iterations Number of times the operation is applied.
- * @param mo Type of morphological operation (erode or dilate).
+ * @param morph_op Type of morphological operation (erode or dilate).
  * @return An output binarily-thresholded frame of type CV_8UC1 after the morphological operation.
  */
-static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iterations, MorphOp mo);
+static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iterations, MorphOp morph_op);
 
 /**
  * @brief Performs morphological opening (erosion followed by dilation) on a grayscale video.
