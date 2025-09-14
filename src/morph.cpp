@@ -1,7 +1,9 @@
 #include <kybdl/morph.h>
 
+#include <cstdint>
 #include <expected>
 #include <format>
+#include <numeric>
 
 static std::expected<cv::Mat, std::string> create_kernel(int dim) {
     if (dim < 3 || dim > 255 || dim % 2 != 1)
@@ -78,10 +80,48 @@ static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iter
     cv::Mat morphed{};
     morphed.create(frame.rows, frame.cols, frame.type());
 
+    const std::vector<uint8_t> krnl_flat{kernel.data, kernel.data + (kernel.rows * kernel.cols)};
+    const long n_ones{std::count(krnl_flat.begin(), krnl_flat.end(), 1)};
     const int half_dim = kernel.rows / 2;
 
+    std::vector<uint8_t> patch{};
+    patch.reserve(kernel.rows * kernel.cols);
+
     for (int i = 0; i < iterations; i++) {
-        // TODO: convolve
+
+        for (int y = half_dim; y < frame.rows - half_dim; y++) {
+            for (int x = half_dim; x < frame.cols - half_dim; x++) {
+
+                for (int yy = y - half_dim; y <= y + half_dim; y++) {
+
+                    const std::uint8_t *frame_row = frame.ptr<std::uint8_t>(yy);
+
+                    for (int xx = x - half_dim; x <= x + half_dim; x++) {
+                        patch.emplace_back(frame_row[x]);
+                    }
+                }
+
+                std::uint8_t is_white{};
+
+                // NOTE: Either case could probably be optimised further using SIMD-invoking methods on vector since our
+                // kernel of choice _is_ just an all-high square matrix but I am leaving it as is in case we want to
+                // experiment w/ other kernels in the future
+
+                // ALL pixels in vicinity must be white
+                if (morph_op == MorphOp::erode)
+                    is_white = std::inner_product(krnl_flat.begin(), krnl_flat.end(), patch.begin(), 0) / n_ones == 255;
+
+                // ANY pixel in the vicinity must be white
+                else
+                    is_white = std::inner_product(krnl_flat.begin(), krnl_flat.end(), patch.begin(), 0) > 0;
+
+                morphed.at<std::uint8_t>(y, x) = is_white == 1 ? 255 : 0;
+                patch.clear();
+            }
+        }
+
+        // TODO: test removing frame's const qualifier and trying out the following
+        // frame = morphed;
     }
 
     return morphed;
@@ -105,17 +145,19 @@ std::expected<Video, std::string> open_masks(const Video &video, int kernel_size
 
     const cv::Mat kernel{kernel_expected.value()};
 
-    Video eroded_masks{};
-    eroded_masks.reserve(video.size());
-
-    for (const cv::Mat &frame : video)
-        eroded_masks.emplace_back(morph_frame(frame, kernel, iterations, MorphOp::erode));
-
     Video opened_masks{};
     opened_masks.reserve(video.size());
 
-    for (const cv::Mat &frame : eroded_masks)
-        opened_masks.emplace_back(morph_frame(frame, kernel, iterations, MorphOp::dilate));
+    /*
+     * NOTE: Scrapped the extra vector because this approach (directly dilating the frame after eroding it) is
+     * extremely branch-prediction friendly (w.r.t MorphOp) AND memory-efficient as we only have a single
+     * intermediate frame as opposed to a whole vector of them.
+     */
+
+    for (const cv::Mat &frame : video) {
+        cv::Mat eroded{morph_frame(frame, kernel, iterations, MorphOp::erode)};
+        opened_masks.emplace_back(morph_frame(eroded, kernel, iterations, MorphOp::dilate));
+    }
 
     return opened_masks;
 }
