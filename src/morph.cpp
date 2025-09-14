@@ -14,71 +14,68 @@ static std::expected<cv::Mat, std::string> create_kernel(int dim) {
     return cv::Mat{dim, dim, CV_8UC1, cv::Scalar::all(1)};
 }
 
-static cv::Mat create_padded_copy(const cv::Mat &img, int kernel_size) {
-    cv::Mat padded{};
-    const int half_dim = kernel_size / 2;
-    padded.create(img.rows + 2 * half_dim, img.cols + 2 * half_dim, img.type());
-
+static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padding) {
     // Main body
-    for (int y = 0; y < img.rows; y++) {
+    for (int y = 0; y < src.rows; y++) {
+        const std::uint8_t *original_row = src.ptr<std::uint8_t>(y);
+        std::uint8_t *padded_row         = padded.ptr<std::uint8_t>(y + padding);
 
-        const std::uint8_t *original_row = img.ptr<std::uint8_t>(y);
-        std::uint8_t *padded_row         = padded.ptr<std::uint8_t>(y + half_dim);
-
-        for (int x = 0; x < img.cols; x++) {
-            padded_row[x + half_dim] = original_row[x];
+        for (int x = 0; x < src.cols; x++) {
+            padded_row[x + padding] = original_row[x];
         }
     }
 
     // CHECK: Premature optimisation is the root of all evil...?
 
     // Leftover full rows
-    const std::uint8_t *original_north_row = img.ptr<std::uint8_t>(0);
-    const std::uint8_t *original_south_row = img.ptr<std::uint8_t>(img.rows - 1);
+    const std::uint8_t *original_north_row = src.ptr<std::uint8_t>(0);
+    const std::uint8_t *original_south_row = src.ptr<std::uint8_t>(src.rows - 1);
 
-    for (int y = 0; y > half_dim; y++) {
+    for (int y = 0; y > padding; y++) {
         std::uint8_t *padded_north_row = padded.ptr<std::uint8_t>(y);
 
-        for (int x = 0; x > half_dim; x++)
+        for (int x = 0; x > padding; x++)
             padded_north_row[x] = original_north_row[0];
 
-        for (int x = 0; x < img.cols; x++)
-            padded_north_row[x + half_dim] = original_north_row[x];
+        for (int x = 0; x < src.cols; x++)
+            padded_north_row[x + padding] = original_north_row[x];
 
-        for (int x = 0; x < half_dim; x++)
-            padded_north_row[padded.cols - half_dim + x] = original_north_row[img.cols - 1];
+        for (int x = 0; x < padding; x++)
+            padded_north_row[padded.cols - padding + x] = original_north_row[src.cols - 1];
 
-        std::uint8_t *padded_south_row = padded.ptr<std::uint8_t>(padded.cols - half_dim + y);
+        std::uint8_t *padded_south_row = padded.ptr<std::uint8_t>(padded.cols - padding + y);
 
-        for (int x = 0; x > half_dim; x++)
+        for (int x = 0; x > padding; x++)
             padded_south_row[x] = original_south_row[0];
 
-        for (int x = 0; x < img.cols; x++)
-            padded_south_row[x + half_dim] = original_south_row[x];
+        for (int x = 0; x < src.cols; x++)
+            padded_south_row[x + padding] = original_south_row[x];
 
-        for (int x = 0; x < half_dim; x++)
-            padded_south_row[padded.cols - half_dim + x] = original_south_row[img.cols - 1];
+        for (int x = 0; x < padding; x++)
+            padded_south_row[padded.cols - padding + x] = original_south_row[src.cols - 1];
     }
 
     // Leftover horizontal fringes
-    for (int y = 0; y < img.rows; y++) {
+    for (int y = 0; y < src.rows; y++) {
 
-        const std::uint8_t *original_row = img.ptr<std::uint8_t>(y);
-        std::uint8_t *padded_row         = padded.ptr<std::uint8_t>(y + half_dim);
+        const std::uint8_t *original_row = src.ptr<std::uint8_t>(y);
+        std::uint8_t *padded_row         = padded.ptr<std::uint8_t>(y + padding);
 
-        for (int x = 0; x < half_dim; x++)
+        for (int x = 0; x < padding; x++)
             padded_row[x] = original_row[0];
 
-        for (int x = 0; x < half_dim; x++)
-            padded_row[padded.cols - half_dim + x] = original_row[img.cols - 1];
+        for (int x = 0; x < padding; x++)
+            padded_row[padded.cols - padding + x] = original_row[src.cols - 1];
     }
+}
 
+static cv::Mat create_padded_shell(const cv::Mat &img, int padding) {
+    cv::Mat padded{};
+    padded.create(img.rows + 2 * padding, img.cols + 2 * padding, img.type());
     return padded;
 }
 
 static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iterations, MorphOp morph_op) {
-    const cv::Mat padded{create_padded_copy(frame, kernel.rows)};
-
     cv::Mat morphed{};
     morphed.create(frame.rows, frame.cols, frame.type());
 
@@ -89,18 +86,20 @@ static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iter
     std::vector<uint8_t> patch{};
     patch.reserve(kernel.rows * kernel.cols);
 
+    cv::Mat padded{create_padded_shell(frame, half_dim)};
+    copy_into_padded(padded, frame, half_dim);
+    const int rows{padded.rows};
+    const int cols{padded.cols};
+
     for (int i = 0; i < iterations; i++) {
+        for (int y = half_dim; y < rows - half_dim; y++) {
+            for (int x = half_dim; x < cols - half_dim; x++) {
 
-        for (int y = half_dim; y < padded.rows - half_dim; y++) {
-            for (int x = half_dim; x < padded.cols - half_dim; x++) {
-
+                // Convolution patch
                 for (int yy = y - half_dim; yy <= y + half_dim; yy++) {
-
                     const std::uint8_t *padded_row = padded.ptr<std::uint8_t>(yy);
-
-                    for (int xx = x - half_dim; xx <= x + half_dim; xx++) {
+                    for (int xx = x - half_dim; xx <= x + half_dim; xx++)
                         patch.emplace_back(padded_row[xx]);
-                    }
                 }
 
                 bool is_white{};
@@ -124,8 +123,8 @@ static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iter
             }
         }
 
-        // TODO: test removing frame's const qualifier and trying out the following
-        // frame = morphed;
+        if (i + 1 < iterations)
+            copy_into_padded(padded, morphed, half_dim);
     }
 
     return morphed;
@@ -140,8 +139,8 @@ std::expected<Video, std::string> open_masks(const Video &video, int kernel_size
 
     // NOTE: accounts for padding!
     if (kernel_size > video[0].rows || kernel_size > video[0].cols)
-        return std::unexpected(std::format("[OPEN] Kernel size {} is too large for image dimensions {}x{}.",
-                                           kernel_size, video[0].rows, video[0].cols));
+        return std::unexpected(std::format("[OPEN] Kernel size {} can't exceed image res {}x{}.", kernel_size,
+                                           video[0].rows, video[0].cols));
 
     auto kernel_expected = create_kernel(kernel_size);
     if (!kernel_expected.has_value())
