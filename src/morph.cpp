@@ -106,7 +106,7 @@ static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iter
                     }
                 }
 
-                std::uint8_t is_white{};
+                bool is_white{};
 
                 // NOTE: Either case could probably be optimised further using SIMD-invoking methods on vector since our
                 // kernel of choice _is_ just an all-high square matrix but I am leaving it as is in case we want to
@@ -120,7 +120,7 @@ static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iter
                 else
                     is_white = std::inner_product(krnl_flat.begin(), krnl_flat.end(), patch.begin(), 0) > 0;
 
-                morphed.at<std::uint8_t>(y, x) = is_white == 1 ? 255 : 0;
+                morphed.at<std::uint8_t>(y, x) = is_white ? 255 : 0;
                 patch.clear();
             }
         }
