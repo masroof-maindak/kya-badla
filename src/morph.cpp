@@ -4,7 +4,6 @@
 #include <expected>
 #include <format>
 #include <numeric>
-#include <print>
 
 static std::expected<cv::Mat, std::string> create_kernel(int dim) {
     if (dim < 3 || dim > 255 || dim % 2 != 1)
@@ -13,12 +12,10 @@ static std::expected<cv::Mat, std::string> create_kernel(int dim) {
     return cv::Mat{dim, dim, CV_8UC1, cv::Scalar::all(1)};
 }
 
-// FIXME: invalid memory access
-
 static cv::Mat create_padded_copy(const cv::Mat &img, int kernel_size) {
     cv::Mat padded{};
-    padded.create(kernel_size - 1, kernel_size - 1, img.type());
     const int half_dim = kernel_size / 2;
+    padded.create(img.rows + 2 * half_dim, img.cols + 2 * half_dim, img.type());
 
     // Main body
     for (int y = 0; y < img.rows; y++) {
@@ -30,8 +27,6 @@ static cv::Mat create_padded_copy(const cv::Mat &img, int kernel_size) {
             padded_row[x + half_dim] = original_row[x];
         }
     }
-
-    std::println(stderr, "here");
 
     // CHECK: Premature optimisation is the root of all evil...?
 
@@ -94,33 +89,35 @@ static cv::Mat morph_frame(const cv::Mat &frame, const cv::Mat &kernel, int iter
 
     for (int i = 0; i < iterations; i++) {
 
-        for (int y = half_dim; y < frame.rows - half_dim; y++) {
-            for (int x = half_dim; x < frame.cols - half_dim; x++) {
+        for (int y = half_dim; y < padded.rows - half_dim; y++) {
+            for (int x = half_dim; x < padded.cols - half_dim; x++) {
 
-                for (int yy = y - half_dim; y <= y + half_dim; y++) {
+                for (int yy = y - half_dim; yy <= y + half_dim; yy++) {
 
-                    const std::uint8_t *frame_row = frame.ptr<std::uint8_t>(yy);
+                    const std::uint8_t *padded_row = padded.ptr<std::uint8_t>(yy);
 
-                    for (int xx = x - half_dim; x <= x + half_dim; x++) {
-                        patch.emplace_back(frame_row[x]);
+                    for (int xx = x - half_dim; xx <= x + half_dim; xx++) {
+                        patch.emplace_back(padded_row[xx]);
                     }
                 }
 
                 bool is_white{};
 
-                // NOTE: Either case could probably be optimised further using SIMD-invoking methods on vector since our
-                // kernel of choice _is_ just an all-high square matrix but I am leaving it as is in case we want to
-                // experiment w/ other kernels in the future
+                /*
+                 * NOTE: Either case could probably be optimised further using SIMD-invoking methods on vector since our
+                 * kernel of choice _is_ just an all-high square matrix but I am leaving it as is in case we want to
+                 * experiment w/ other kernels in the future
+                 */
 
                 // ALL pixels in vicinity must be white
-                if (morph_op == MorphOp::erode)
+                if (morph_op == MorphOp::erode) // CHECK: Find faster solution using vectorised bitwise and?
                     is_white = std::inner_product(krnl_flat.begin(), krnl_flat.end(), patch.begin(), 0) / n_ones == 255;
 
                 // ANY pixel in the vicinity must be white
                 else
                     is_white = std::inner_product(krnl_flat.begin(), krnl_flat.end(), patch.begin(), 0) > 0;
 
-                morphed.at<std::uint8_t>(y, x) = is_white ? 255 : 0;
+                morphed.at<std::uint8_t>(y - half_dim, x - half_dim) = is_white ? 255 : 0;
                 patch.clear();
             }
         }
