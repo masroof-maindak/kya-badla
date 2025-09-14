@@ -4,6 +4,7 @@
 #include <expected>
 #include <format>
 #include <numeric>
+#include <print>
 
 static std::expected<cv::Mat, std::string> create_kernel(int dim) {
     if (dim < 3 || dim > 255 || dim % 2 != 1)
@@ -11,6 +12,8 @@ static std::expected<cv::Mat, std::string> create_kernel(int dim) {
 
     return cv::Mat{dim, dim, CV_8UC1, cv::Scalar::all(1)};
 }
+
+// FIXME: invalid memory access
 
 static cv::Mat create_padded_copy(const cv::Mat &img, int kernel_size) {
     cv::Mat padded{};
@@ -27,6 +30,8 @@ static cv::Mat create_padded_copy(const cv::Mat &img, int kernel_size) {
             padded_row[x + half_dim] = original_row[x];
         }
     }
+
+    std::println(stderr, "here");
 
     // CHECK: Premature optimisation is the root of all evil...?
 
