@@ -7,6 +7,9 @@
 #include <cstdint>
 
 std::expected<Video, std::string> bgr_video_to_grayscale(const Video &video) {
+    if (video.empty())
+        return std::unexpected("[GRAYSCALE] Empty video provided.");
+
     Video video_gray{};
     video_gray.reserve(video.size());
 
@@ -34,4 +37,17 @@ std::expected<Video, std::string> bgr_video_to_grayscale(const Video &video) {
     }
 
     return video_gray;
+}
+
+std::expected<Video, std::string> alpha_blend(const Video &video, const Video &masks) {
+    if (video.empty())
+        return std::unexpected("[ALPHA] Empty video provided.");
+
+    if (video.size() != masks.size())
+        return std::unexpected("[ALPHA] Uneven number of masks and source frames.");
+
+    Video blended;
+    blended.reserve(video.size());
+
+    return blended;
 }

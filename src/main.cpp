@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <string>
+#include <string_view>
 
 template <typename T> T unwrap(std::expected<T, std::string> expected_val, const std::string &err_msg) {
     if (!expected_val.has_value())
@@ -17,18 +18,22 @@ template <typename T> T unwrap(std::expected<T, std::string> expected_val, const
     return expected_val.value();
 }
 
+inline void clear_video(Video &v, std::string_view video_name) {
+    for (cv::Mat &f : v)
+        f.release();
+    v.clear();
+    std::println("Freed video: {}", video_name);
+}
+
 int main(int argc, char *argv[]) {
     try {
-        auto args = unwrap(parse_args(argc, argv), "Error parsing arguments");
+        ArgConfig args = unwrap(parse_args(argc, argv), "Error parsing arguments");
 
-        auto video_colour = unwrap(read_frames(args.input_dir, args.input_ext, args.scale), "Error reading frames");
+        Video video_colour = unwrap(read_frames(args.input_dir, args.input_ext, args.scale), "Error reading frames");
         std::println("Loaded original video.");
 
-        auto video_gray = unwrap(bgr_video_to_grayscale(video_colour), "Error converting to grayscale");
+        Video video_gray = unwrap(bgr_video_to_grayscale(video_colour), "Error converting to grayscale");
         std::println("Converted video to grayscale.");
-
-        video_colour.clear();
-        std::println("Freed colour video.");
 
         unwrap(save_frames(video_gray, args.output_dir, "gray", args.output_ext, args.frame_save_step),
                "Error saving gray frames");
@@ -42,24 +47,35 @@ int main(int argc, char *argv[]) {
         unwrap(save_image(variance, args.output_dir, "variance", args.output_ext), "Error saving variance image");
         std::println("Computed and saved variance.");
 
-        auto masks = unwrap(compute_masks(video_gray, mean, variance, args.mn_threshold), "Error computing masks");
+        Video masks = unwrap(compute_masks(video_gray, mean, variance, args.mn_threshold), "Error computing masks");
         std::println("Succesfully computed Mahalanobis distance masks w/ threshold {}.", args.mn_threshold);
+
+        clear_video(video_gray, "grayscale");
 
         unwrap(save_frames(masks, args.output_dir, "mask", args.output_ext, args.frame_save_step),
                "Error saving masked frames");
         std::println("Saved masked frames.");
 
-        auto opened_masks = unwrap(open_masks(masks, args.kernel_size, args.iterations), "Error opening masked frames");
+        Video masks_opened = unwrap(open_masks(masks, args.kernel_size, args.iterations), "Error opening frame masks");
         std::println("Opened masks.");
 
-        masks.clear();
-        std::println("Freed old masks");
+        clear_video(masks, "masks");
 
-        unwrap(save_frames(opened_masks, args.output_dir, "mask-opened", args.output_ext, args.frame_save_step),
+        unwrap(save_frames(masks_opened, args.output_dir, "mask-opened", args.output_ext, args.frame_save_step),
                "Error saving opened mask frames");
         std::println("Saved opened mask frames.");
 
-        // TODO: connected components
+        // TODO: connected components -- do we even need this ?
+
+        Video video_blended = unwrap(alpha_blend(video_colour, masks_opened), "Error during alpha blending");
+        std::println("Alpha blending complete.");
+
+        clear_video(masks_opened, "opened masks");
+        clear_video(video_colour, "colour");
+
+        // TODO: write video to disk
+
+        clear_video(video_blended, "blended");
 
     } catch (const std::runtime_error &e) {
         std::println(stderr, "Error: {}", e.what());
