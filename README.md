@@ -20,6 +20,7 @@ cmake --build .
 - Grayscale conversion
 - Mean & variance calculation
 - Mahalanobis distance-based masking
+- Mask opening (erosion + dilation)
 
 ## Assumptions
 
