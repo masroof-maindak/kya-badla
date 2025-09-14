@@ -1,9 +1,11 @@
 #include <kybdl/morph.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <expected>
 #include <format>
 #include <numeric>
+#include <print>
 
 static std::expected<cv::Mat, std::string> create_kernel(int dim) {
     if (dim < 3 || dim > 255 || dim % 2 != 1)
@@ -150,15 +152,20 @@ std::expected<Video, std::string> open_masks(const Video &video, int kernel_size
     Video opened_masks{};
     opened_masks.reserve(video.size());
 
+    const size_t print_msg_step{std::max<size_t>(1, video.size() / 4)};
+
     /*
      * NOTE: Scrapped the extra vector because this approach (directly dilating the frame after eroding it) is
      * extremely branch-prediction friendly (w.r.t MorphOp) AND memory-efficient as we only have a single
      * intermediate frame as opposed to a whole vector of them.
      */
 
-    for (const cv::Mat &frame : video) {
+    for (size_t i = 0; const cv::Mat &frame : video) {
+        if (i % print_msg_step == 0)
+            std::println("Opened [{}/{}] frames.", i, video.size());
         cv::Mat eroded{morph_frame(frame, kernel, iterations, MorphOp::erode)};
         opened_masks.emplace_back(morph_frame(eroded, kernel, iterations, MorphOp::dilate));
+        i++;
     }
 
     return opened_masks;
