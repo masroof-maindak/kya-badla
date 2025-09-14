@@ -62,7 +62,7 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         .help("specify the number of iterations the morphological operations should run for")
         .default_value(1)
         .scan<'i', int>()
-        .store_into(args.kernel_size);
+        .store_into(args.iterations);
 
     try {
         prog.parse_args(argc, argv);
