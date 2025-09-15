@@ -40,9 +40,6 @@ std::expected<Video, std::string> bgr_video_to_grayscale(const Video &video) {
     return video_gray;
 }
 
-// video = vector of matrices of CV_8UC3
-// masks = vector of matrices of CV_8UC3
-// mean_frame = matrix of CV_32F1
 std::expected<Video, std::string> alpha_blend(const Video &video, const Video &masks, const cv::Mat &mean_frame) {
     if (video.empty())
         return std::unexpected("[ALPHA] Empty video provided.");
