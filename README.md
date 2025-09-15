@@ -21,6 +21,8 @@ cmake --build .
 - Mean & variance calculation
 - Mahalanobis distance-based masking
 - Mask opening (erosion + dilation)
+- Alpha blending to remove foreground subject
+- Save video w/ subject removed
 
 ## Assumptions
 
