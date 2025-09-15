@@ -58,13 +58,6 @@ std::expected<Video, std::string> alpha_blend(const Video &video, const Video &m
     const int rows{video[0].rows};
     const int cols{video[0].cols};
 
-    // new_frame = k*(1-α * binary_mask_3c) + t*(binary_mask_3c * α)
-    //
-    // 	 k = frames containing person (original)
-    // 	 t = frames without person
-    // 	 binary_mask_3c: binary mask converted into 3 channels
-    // 	 α: is the blending factor varies from 0 to 1
-
     for (auto [frame, mask] : std::views::zip(video, masks)) {
         double alpha_add_inv{1.0 - alpha};
 
