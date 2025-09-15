@@ -1,6 +1,7 @@
 #include <kybdl/io.h>
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/videoio.hpp>
 
 #include <expected>
 #include <filesystem>
@@ -102,5 +103,24 @@ std::expected<std::filesystem::path, std::string> save_image(const cv::Mat &img,
     // TODO: handle imwrite errors
     cv::imwrite(fname, img);
 
+    return dir;
+}
+
+std::expected<std::filesystem::path, std::string> save_as_video(const Video &video, const std::string &out_dir,
+                                                                const std::string &video_format) {
+    if (video.empty())
+        return std::unexpected("[VIDEO] Empty video provided.");
+
+    std::filesystem::path dir{out_dir + "/video" + video_format};
+
+    cv::VideoWriter vw{dir, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, video[0].size(), true};
+
+    if (!vw.isOpened())
+        return std::unexpected("[VIDEO] Failed to open video writer.");
+
+    for (const cv::Mat &frame : video)
+        vw << frame;
+
+    vw.release();
     return dir;
 }

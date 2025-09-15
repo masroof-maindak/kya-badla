@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
         std::println("Saved masked frames.");
 
         Video masks_opened = unwrap(open_masks(masks, args.kernel_size, args.iterations), "Error opening frame masks");
-        std::println("Opened masks.");
+        std::println("Opened all masks.");
 
         clear_video(masks, "masks");
 
@@ -71,9 +71,6 @@ int main(int argc, char *argv[]) {
          * anyway.
          */
 
-        unwrap(save_frames(video_colour, args.output_dir, "original", args.output_ext, args.frame_save_step),
-               "Failed to save colour video");
-
         Video video_blended = unwrap(alpha_blend(video_colour, masks_opened, mean), "Error during alpha blending");
         std::println("Alpha blending complete.");
 
@@ -82,12 +79,15 @@ int main(int argc, char *argv[]) {
 
         unwrap(save_frames(video_blended, args.output_dir, "blend", args.output_ext, args.frame_save_step),
                "Failed to save blended video");
-        // TODO: write video to disk
-
-        clear_video(video_blended, "blended");
+        std::println("Saved blended frames.");
 
         mean.release();
         variance.release();
+
+        unwrap(save_as_video(video_blended, args.output_dir, args.video_format), "Error saving video as video.");
+        std::println("Saved output video.");
+
+        clear_video(video_blended, "blended");
     } catch (const std::runtime_error &e) {
         std::println(stderr, "Error: {}", e.what());
         return EXIT_FAILURE;

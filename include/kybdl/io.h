@@ -19,4 +19,7 @@ std::expected<std::filesystem::path, std::string> save_frames(const Video &video
 std::expected<std::filesystem::path, std::string> save_image(const cv::Mat &img, const std::string &out_dir,
                                                              const std::string &phase, std::string_view out_ext);
 
+std::expected<std::filesystem::path, std::string> save_as_video(const Video &video, const std::string &out_dir,
+                                                                const std::string &video_format);
+
 #endif // IO_H
