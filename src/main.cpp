@@ -86,6 +86,8 @@ int main(int argc, char *argv[]) {
 
         clear_video(video_blended, "blended");
 
+        mean.release();
+        variance.release();
     } catch (const std::runtime_error &e) {
         std::println(stderr, "Error: {}", e.what());
         return EXIT_FAILURE;
