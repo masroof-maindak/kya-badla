@@ -14,6 +14,6 @@
  */
 std::expected<Video, std::string> bgr_video_to_grayscale(const Video &video);
 
-std::expected<Video, std::string> alpha_blend(const Video &video, const Video &masks);
+std::expected<Video, std::string> alpha_blend(const Video &video, const Video &masks, const cv::Mat &mean_frame);
 
 #endif // IMG_PROCESS_H

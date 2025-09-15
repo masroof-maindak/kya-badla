@@ -65,14 +65,23 @@ int main(int argc, char *argv[]) {
                "Error saving opened mask frames");
         std::println("Saved opened mask frames.");
 
-        // TODO: connected components -- do we even need this ?
+        /*
+         * CHECK: Connected Components -- do we even need this; we already have a lot of control over the output thanks
+         * to all the CLI arguments we can set, and there's practically no noise after the aformentioned operations
+         * anyway.
+         */
 
-        Video video_blended = unwrap(alpha_blend(video_colour, masks_opened), "Error during alpha blending");
+        unwrap(save_frames(video_colour, args.output_dir, "original", args.output_ext, args.frame_save_step),
+               "Failed to save colour video");
+
+        Video video_blended = unwrap(alpha_blend(video_colour, masks_opened, mean), "Error during alpha blending");
         std::println("Alpha blending complete.");
 
         clear_video(masks_opened, "opened masks");
         clear_video(video_colour, "colour");
 
+        unwrap(save_frames(video_blended, args.output_dir, "blend", args.output_ext, args.frame_save_step),
+               "Failed to save blended video");
         // TODO: write video to disk
 
         clear_video(video_blended, "blended");
