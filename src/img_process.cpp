@@ -74,34 +74,37 @@ std::expected<Video, std::string> alpha_blend(const Video &video, const Video &m
         cv::Mat output_frame{};
         output_frame.create(frame.rows, frame.cols, CV_8UC3);
 
+        // Generate bitwise not of mask
+        cv::Mat mask_inv{};
+        mask.copyTo(mask_inv);
+        std::uint8_t *mask_inv_ptr = mask_inv.data;
+        std::uint8_t *mask_ptr     = mask.data;
+        const int size             = mask.rows * mask.cols;
+        for (int i = 0; i < size; i++)
+            mask_inv_ptr[i] = mask_ptr[i] ^ 255;
+
         for (int y = 0; y < rows; y++) {
 
             const cv::Vec3b *frame_row       = frame.ptr<cv::Vec3b>(y);
             const std::uint8_t *mask_row     = mask.ptr<std::uint8_t>(y);
+            const std::uint8_t *not_mask_row = mask_inv.ptr<std::uint8_t>(y);
             const float *mean_row            = mean_frame.ptr<float>(y);
-            const cv::Vec3b *first_frame_row = video[0].ptr<cv::Vec3b>(y);
             cv::Vec3b *output_row            = output_frame.ptr<cv::Vec3b>(y);
 
             for (int x = 0; x < cols; x++) {
                 const double amplifying_mask{alpha * (mask_row[x] == 255 ? 1 : 0)};          // a * binary_mask
                 const double diminishing_mask{alpha_add_inv * (mask_row[x] == 255 ? 1 : 0)}; // (1 - a) * binary_mask
 
-                std::uint8_t mean_val = static_cast<std::uint8_t>(mean_row[x]);
+                const std::uint8_t mean_val = static_cast<std::uint8_t>(mean_row[x]);
 
-                const cv::Vec3b k{frame_row[x]}; // coloured pixel
-                // const cv::Vec3b f{first_frame_row[x]};           // coloured pixel (first frame)
-                const cv::Vec3b t{mean_val, mean_val, mean_val}; // convert grayscale to coloured pixel
+                const cv::Vec3b coloured_px{frame_row[x]};
+                const cv::Vec3b mean_px{mean_val, mean_val, mean_val};
 
-                const std::uint8_t B = static_cast<std::uint8_t>(k[0] * diminishing_mask) +
-                                       static_cast<std::uint8_t>(t[0] * amplifying_mask) + t[0];
-                const std::uint8_t G = static_cast<std::uint8_t>(k[1] * diminishing_mask) +
-                                       static_cast<std::uint8_t>(t[1] * amplifying_mask) + t[1];
-                const std::uint8_t R = static_cast<std::uint8_t>(k[2] * diminishing_mask) +
-                                       static_cast<std::uint8_t>(t[2] * amplifying_mask) + t[2];
+                const cv::Vec3b coloured_diminishing_fg{coloured_px * diminishing_mask};
+                const cv::Vec3b grayscale_amplifying_fg{mean_px * amplifying_mask};
+                const cv::Vec3b coloured_bg{coloured_px * (not_mask_row[x] == 255 ? 1 : 0)};
 
-                output_row[x][0] = B;
-                output_row[x][1] = G;
-                output_row[x][2] = R;
+                output_row[x] = coloured_diminishing_fg + grayscale_amplifying_fg + coloured_bg;
             }
         }
 
