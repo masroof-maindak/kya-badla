@@ -45,7 +45,8 @@ std::expected<Video, std::string> alpha_blend(const Video &video, const Video &m
         return std::unexpected("[ALPHA] Empty video provided.");
 
     if (video.size() != masks.size())
-        return std::unexpected("[ALPHA] Uneven number of masks and source frames.");
+        return std::unexpected(
+            std::format("[ALPHA] Uneven number of masks and source frames: {} & {}", video.size(), masks.size()));
 
     if (mean_frame.type() != CV_32FC1)
         return std::unexpected("[ALPHA] Mean frame is not single-channel float");

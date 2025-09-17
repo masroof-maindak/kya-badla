@@ -8,6 +8,7 @@
 #include <string>
 
 struct ArgConfig {
+    bool remove_via_blend;
     int kernel_size;
     int mn_threshold;
     int frame_save_step;

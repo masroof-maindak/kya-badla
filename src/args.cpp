@@ -64,6 +64,11 @@ std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
         .scan<'i', int>()
         .store_into(args.iterations);
 
+    prog.add_argument("-r", "--remove-via-blend")
+        .help("specify whether to (attempt to) remove the foreground")
+        .flag()
+        .store_into(args.remove_via_blend);
+
     try {
         prog.parse_args(argc, argv);
     } catch (const std::exception &err) {

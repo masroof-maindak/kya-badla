@@ -113,7 +113,9 @@ std::expected<std::filesystem::path, std::string> save_as_video(const Video &vid
 
     std::filesystem::path dir{out_dir + "/video" + video_format};
 
-    cv::VideoWriter vw{dir, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, video[0].size(), true};
+    const bool is_color{video[0].type() == CV_8UC3};
+
+    cv::VideoWriter vw{dir, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, video[0].size(), is_color};
 
     if (!vw.isOpened())
         return std::unexpected("[VIDEO] Failed to open video writer.");

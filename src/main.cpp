@@ -71,23 +71,31 @@ int main(int argc, char *argv[]) {
          * anyway.
          */
 
-        Video video_blended = unwrap(alpha_blend(video_colour, masks_opened, mean), "Error during alpha blending");
-        std::println("Alpha blending complete.");
+        Video final{};
 
-        clear_video(masks_opened, "opened masks");
-        clear_video(video_colour, "colour");
+        if (args.remove_via_blend) {
+            Video video_blended = unwrap(alpha_blend(video_colour, masks_opened, mean), "Error during alpha blending");
+            std::println("Alpha blending complete.");
 
-        unwrap(save_frames(video_blended, args.output_dir, "blend", args.output_ext, args.frame_save_step),
-               "Failed to save blended video");
-        std::println("Saved blended frames.");
+            clear_video(masks_opened, "opened masks");
+            clear_video(video_colour, "colour");
+
+            final = std::move(video_blended);
+
+            unwrap(save_frames(video_blended, args.output_dir, "blend", args.output_ext, args.frame_save_step),
+                   "Failed to save blended video");
+            std::println("Saved blended frames.");
+        } else {
+            final = std::move(masks_opened);
+        }
 
         mean.release();
         variance.release();
 
-        unwrap(save_as_video(video_blended, args.output_dir, args.video_format), "Error saving video as video.");
+        unwrap(save_as_video(final, args.output_dir, args.video_format), "Error saving image vector as video.");
         std::println("Saved output video.");
 
-        clear_video(video_blended, "blended");
+        clear_video(final, args.remove_via_blend ? "blended" : "opened masks");
     } catch (const std::runtime_error &e) {
         std::println(stderr, "Error: {}", e.what());
         return EXIT_FAILURE;
