@@ -4,7 +4,7 @@
 #include <optional>
 
 std::expected<ArgConfig, std::string> parse_args(int argc, char *argv[]) {
-    argparse::ArgumentParser prog("kybdl", "v2025-09-13a", argparse::default_arguments::help);
+    argparse::ArgumentParser prog("kybdl", "v2025-09-17a", argparse::default_arguments::help);
 
     ArgConfig args{.frame_count = std::nullopt};
 
