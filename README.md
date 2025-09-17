@@ -25,7 +25,7 @@ cd kya-badla
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release .. # Or 'Debug' if you want to hack away.
 cmake --build .
-./kybdl -i <input-dir> -o <output-dir>
+./kybdl -i <input-dir> -o <output-dir> # Or maybe try `-h` first
 ```
 
 ## Features
