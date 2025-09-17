@@ -26,35 +26,45 @@ static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padd
 
     /*
      * CHECK: Premature optimisation is the root of all evil...?
-     *
-     * Indeed.
-     *
      * I was expecting my supposed cache-conscious solution to perform better than the naive solution I've now
      * implemented in it's stead, but it was a solid 800ns seconds slower than the 1200ns run-time of the 'naive'
      * approach i.e the one with zero regards to cache evictions...
      *
      * Why is this?
+     *
+     * NOTE: Fret not, my epic cache-conscious implementation beats the naive one by about 100ns w/ optimisations
+     * enabled so I'll take that as a win to be honest, and am bringing it back.
      */
 
-    // Leftover full rows
     const std::uint8_t *original_north_row = src.ptr<std::uint8_t>(0);
     const std::uint8_t *original_south_row = src.ptr<std::uint8_t>(src.rows - 1);
 
+    // Leftover full rows: top
     for (int y = 0; y < padding; y++) {
         std::uint8_t *padded_north_row = padded.ptr<std::uint8_t>(y);
+
+        for (int x = 0; x < padding; x++)
+            padded_north_row[x] = original_north_row[0];
+
+        for (int x = 0; x < src.cols; x++)
+            padded_north_row[x + padding] = original_north_row[x];
+
+        for (int x = 0; x < padding; x++)
+            padded_north_row[padded.cols - padding + x] = original_north_row[src.cols - 1];
+    }
+
+    // Leftover full rows: bottom
+    for (int y = 0; y < padding; y++) {
         std::uint8_t *padded_south_row = padded.ptr<std::uint8_t>(padded.rows - padding + y);
 
-        for (int x = 0; x < padding; x++) {
-            padded_north_row[padded.cols - padding + x] = original_north_row[src.cols - 1];
-            padded_south_row[padded.cols - padding + x] = original_south_row[src.cols - 1];
-            padded_north_row[x]                         = original_north_row[0];
-            padded_south_row[x]                         = original_south_row[0];
-        }
+        for (int x = 0; x < padding; x++)
+            padded_south_row[x] = original_south_row[0];
 
-        for (int x = 0; x < src.cols; x++) {
-            padded_north_row[x + padding] = original_north_row[x];
+        for (int x = 0; x < src.cols; x++)
             padded_south_row[x + padding] = original_south_row[x];
-        }
+
+        for (int x = 0; x < padding; x++)
+            padded_south_row[padded.cols - padding + x] = original_south_row[src.cols - 1];
     }
 
     // Leftover horizontal fringes
@@ -68,6 +78,8 @@ static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padd
             padded_row[padded.cols - padding + x] = original_row[src.cols - 1];
         }
     }
+
+    return;
 }
 
 static cv::Mat create_padded_shell(const cv::Mat &img, int padding) {
