@@ -20,9 +20,8 @@ static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padd
         const std::uint8_t *original_row = src.ptr<std::uint8_t>(y);
         std::uint8_t *padded_row         = padded.ptr<std::uint8_t>(y + padding);
 
-        for (int x = 0; x < src.cols; x++) {
+        for (int x = 0; x < src.cols; x++)
             padded_row[x + padding] = original_row[x];
-        }
     }
 
     // CHECK: Premature optimisation is the root of all evil...?
@@ -31,10 +30,10 @@ static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padd
     const std::uint8_t *original_north_row = src.ptr<std::uint8_t>(0);
     const std::uint8_t *original_south_row = src.ptr<std::uint8_t>(src.rows - 1);
 
-    for (int y = 0; y > padding; y++) {
+    for (int y = 0; y < padding; y++) {
         std::uint8_t *padded_north_row = padded.ptr<std::uint8_t>(y);
 
-        for (int x = 0; x > padding; x++)
+        for (int x = 0; x < padding; x++)
             padded_north_row[x] = original_north_row[0];
 
         for (int x = 0; x < src.cols; x++)
@@ -43,9 +42,9 @@ static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padd
         for (int x = 0; x < padding; x++)
             padded_north_row[padded.cols - padding + x] = original_north_row[src.cols - 1];
 
-        std::uint8_t *padded_south_row = padded.ptr<std::uint8_t>(padded.cols - padding + y);
+        std::uint8_t *padded_south_row = padded.ptr<std::uint8_t>(padded.rows - padding + y);
 
-        for (int x = 0; x > padding; x++)
+        for (int x = 0; x < padding; x++)
             padded_south_row[x] = original_south_row[0];
 
         for (int x = 0; x < src.cols; x++)
