@@ -28,6 +28,23 @@ cmake --build .
 ./kybdl -i <input-dir> -o <output-dir> # Or maybe try `-h` first
 ```
 
+## Command Line Arguments
+
+| Short Flag | Long Flag                 | Description                                                                   | Default Value | Choices        | Required |
+| :--------- | :------------------------ | :---------------------------------------------------------------------------- | :------------ | :------------- | :------- |
+| `-o`       | `--output-dir`            | specify the output dir                                                        |               |                | Yes      |
+| `-i`       | `--input-dir`             | specify the input dir                                                         |               |                | Yes      |
+| `-ie`      | `--input-ext`             | specify the input frames' extension                                           | `.png`        | `.png`, `.jpg` | No       |
+| `-oe`      | `--output-ext`            | specify the output frames' extension                                          | `.png`        | `.png`, `.jpg` | No       |
+| `-vf`      | `--video-format`          | specify the output video's extension                                          | `.mp4`        | `.mp4`, `.avi` | No       |
+| `-rs`      | `--resize-scale`          | specify the input frames' scale post-resizing -- (0 - 1)                      | `1.0f`        |                | No       |
+| `-fss`     | `--frame-save-step`       | specify the number of frames after which a new frame will be saved            | `10`          |                | No       |
+| `-fc`      | `--frame-count`           | specify the first #N frames to use for background generation                  |               |                | No       |
+| `-mt`      | `--mahalanobis-threshold` | specify the threshold to be used to compute the mask via Mahalanobis Distance | `5`           |                | No       |
+| `-ks`      | `--kernel-size`           | specify the size of the kernel to be used for dilation/erosion                | `3`           |                | No       |
+| `-mi`      | `--iterations`            | specify the number of iterations the morphological operations should run for  | `1`           |                | No       |
+| `-r`       | `--remove-via-blend`      | specify whether to (attempt to) remove the foreground                         | `false`       |                | No       |
+
 ## Features
 
 - Robust set of command-line arguments
