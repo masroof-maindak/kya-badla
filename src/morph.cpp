@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <expected>
 #include <format>
 #include <numeric>
@@ -19,9 +20,7 @@ static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padd
     for (int y = 0; y < src.rows; y++) {
         const std::uint8_t *original_row = src.ptr<std::uint8_t>(y);
         std::uint8_t *padded_row         = padded.ptr<std::uint8_t>(y + padding);
-
-        for (int x = 0; x < src.cols; x++)
-            padded_row[x + padding] = original_row[x];
+        std::memcpy(padded_row + padding, original_row, src.cols);
     }
 
     /*
