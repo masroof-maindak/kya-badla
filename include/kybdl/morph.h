@@ -19,6 +19,12 @@ enum class MorphOp {
  */
 static std::expected<cv::Mat, std::string> create_kernel(int dim);
 
+/**
+ * @param padded Destination matrix 2xpadding times as many rows/cols as src -- assumed 8UC1
+ * @param src Source matrix; -- assumed 8UC1
+ *
+ * TODO: this should probably return an 'expected' for the 3 aforementioned assumptions
+ */
 static void copy_into_padded(cv::Mat &padded, const cv::Mat &src, const int padding);
 
 /**
